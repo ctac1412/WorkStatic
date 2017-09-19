@@ -15,95 +15,118 @@ function listener(request) {
 function PostForm(){
 
 // var frmd = new FormData();
-// frmd.append('Id',"1")
-// // frmd.append('ClaimId',document.querySelector("#ClaimId").value)
-// // frmd.append('DocumentId',document.querySelector("#DocumentId").value)
-// // frmd.append('DocumentTemplateId',document.querySelector("#DocumentTemplateId").value)
-// // frmd.append('ParentLinkId',document.querySelector("#ParentLinkId").value)
-// // frmd.append('StatementView',document.querySelector("#StatementView").value)
-//
-// console.log(frmd);
-// // Display the keys
-// for (var key of frmd.keys()) {
-//    console.log(key);
-// }
 
 
-var frmd = new FormData();
-frmd.append('Id',document.querySelector("#Id").value)
-console.log(document.querySelector("#Id").value);
+var form=document.querySelector('#document_form');
+
+var frmd = new FormData(form);
+
+// frmd.append('Id',document.querySelector("#Id").value)
 // frmd.append('ClaimId',document.querySelector("#ClaimId").value)
 // frmd.append('DocumentId',document.querySelector("#DocumentId").value)
 // frmd.append('DocumentTemplateId',document.querySelector("#DocumentTemplateId").value)
 // frmd.append('ParentLinkId',document.querySelector("#ParentLinkId").value)
 // frmd.append('StatementView',document.querySelector("#StatementView").value)
 
-console.log(frmd);
-// Display the keys
-for (var key of frmd.keys()) {
-   console.log(key);
-}
 
+SetContractor(frmd).then(()=>{
 
-GetConttractor(frmd).then((obj)=>{
-console.log(frmd);
-console.log(obj);
-}).then((obj)=>{
-  return  fetch(document.location,{
-    method : 'POST',
-    credentials : 'include',
-    body : frmd
   })
-})
-.then((response)=>{
-  console.log("response.status", response.status);
-}).then(()=>{
-// window.location.reload(true);
-});
+  .then(()=>{
+    return  fetch(form.action,{
+      method : 'POST',
+      credentials : 'include',
+      body : frmd
+    })
+  })
+  .then((response)=>{
+    console.log("response.status", response.status);
+  }).then(()=>{
+  // window.location.reload(true);
+  });
 
 }
 
 
-function GetConttractor(data) {
-  console.log(data);
-return  FindContractor ("2223434342214").then((obj)=>{
-    if (obj.length > 0) {
-      return obj[0].id;
-    } else {
-      return AddContractor()
-    }
-  }).then((id)=>{
+function SetManufacturer() {
+  // ManufacturerTitle	test+1
+  // ManufacturerID	11
+  // ManufacturerInfo	Место+нахождения+и+адрес+места…rk,+Соединенные
+  // ManufacturerAffiliates
+  // CountryId	1
+}
+
+function SetApplicant() {
+
+  SetContractor(data,"1111111111113")
+  data.set("ApplicantID", id)
+}
+
+
+
+function SetContractor(data,ogrn,name) {
+  return  GetContractor({ogrn:ogrn, name:name}).then((id)=>{
+    
+
     return fetch("https://stage-2-docs.advance-docs.ru/Contractor/GetDescription?id=" + id + "&ogrnAtStart=false&splitReg=false&fullInitials=true&version=EA&manufacturer=false",{
        method : 'GET',
        credentials: 'include'
-     }).then((response)=>{
+     }).then((response,id)=>{
        return response.json()
      });
   }).then((ret)=>{
     console.log(ret);
-    data.append("ApplicantInitials", ret.Initials)
-    data.append("ApplicantTitle", ret.Title )
-    data.append("ApplicantInfo", ret.Info )
-    data.append("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName  )
-    data.append("ApplicantInitials", ret.DirectorName)
-    data.append("ApplicantInitials", ret.DirectorName)
-    return data
-  });
+    console.log("ApplicantInitials", [ret.Initials])
+    console.log("ApplicantInfo", ret.Info )
+    console.log("ApplicantTitle", ret.Title )
+    console.log("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName  )
+    data.set("ApplicantInitials", [ret.Initials])
+    data.set("ApplicantTitle", ret.Title )
+    data.set("ApplicantInfo", ret.Info )
+    data.set("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName  )
+    return
+  }).catch(error => {
+
+									console.log(error.message);
+								});
 }
+
 
  function AddContractor() {
    var id = 0
    return id
  }
 
-function FindContractor (ogrn) {
+ function crateFormException(message, value) {
+   this.value = value;
+   this.message = message;
+   this.toString = function() {
+     return this.message + " : " + this.value;
+   };
+ };
 
-  return fetch("https://stage-2-docs.advance-docs.ru/Contractor/Search?q=" + ogrn,{
-    method : 'GET',
-    credentials: 'include'
-  }).then((response)=>{
-      return response.json()
-    });
+function GetContractor (obj) {
+  var url = ""
+  console.log(obj);
+
+  if (!obj) { throw new crateFormException("Нет данных по компании") }
+
+  if (obj.name) url = "https://stage-2-docs.advance-docs.ru/Contractor/Search?q=" + obj.name;
+  if (obj.ogrn) url = "https://stage-2-docs.advance-docs.ru/Contractor/Search?q=" + obj.ogrn;
+
+  console.log(url);
+    return fetch(url,{
+      method : 'GET',
+      credentials: 'include'
+      }).then((response)=>{
+        return response.json()
+      }).then((obj))=>{
+        if (obj.length > 0) {
+          return obj[0].id;
+        } else {
+          return AddContractor()
+        }
+      })
   }
 
 // // выбираем целевой элемент
