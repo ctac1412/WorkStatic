@@ -1,0 +1,55 @@
+{
+  "manifest_version": 2,
+  "name": "Помощник - эксперта",
+  "version": "0.1",
+
+  "description": "Инфа",
+
+  "applications": {
+    "gecko": {
+      "id": "dom333122@yandex.ru",
+      "strict_min_version": "49.0"
+    }
+  },
+
+  "icons": {
+    "48": "icons/48.png",
+    "96": "icons/96.png"
+  },
+
+  "sidebar_action": {
+  "default_title": "My sidebar",
+  "default_panel": "sidebar/sidebar.html",
+  "default_icon": "sidebar/sidebar_icon.png"
+},
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+
+  "permissions": [
+      "storage",
+      "activeTab",
+      "tabs",
+      "notifications",
+      "<all_urls>",
+      "*://*.aesthetic.ru/*",
+      "*://10.250.4.13/*",
+      "*://*.advance-docs.ru/*"
+  ],
+
+  "browser_action": {
+      "browser_style": false,
+      "default_icon": "icons/32.png",
+      "default_title": "Эксперта плагин"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
+      "js": ["Agency.js"]
+    }
+  ]
+}
