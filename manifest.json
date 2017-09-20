@@ -43,13 +43,13 @@
   },
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["background.js","Agency.js","Agency2.js"]
   },
 
   "content_scripts": [
     {
       "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
-      "js": ["Agency.js"]
+      "js": ["Agency.js","Agency2.js"]
     }
   ]
 }
