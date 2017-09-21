@@ -7,10 +7,45 @@
   </head>
 
 <body>
-  <div id = "content"></div>
-  <p>Click inside the box to start taking notes on this page.</p>
-  <button id="s_save">Сохранить</button>
-  <script src="sidebar.js"></script>
+
+  <div class="">
+    <span class="form-label">Выберите файл</span>
+    <input accept="" id="file-input" type="file">
+  </div>
+
+  <div class="">
+    <button id="start_load" type="button" name="button">Загрузить</button>
+  </div>
+
+
+  <div hidden="" id="container" >
+  		<ol id="demo-container">
+  			<li>
+  				<label>
+  				</label>
+  			</li>
+  			<li>
+  				<label>
+  					<span class="form-label">choose temporary storage</span>
+  					<select id="creation-method-input">
+  						<option value="Blob">RAM</option>
+
+  					</select>
+  				</label>
+  			</li>
+  			<li>
+  				<span class="form-label">download zip content</span>
+  				<ul id="file-list">
+  				</ul>
+  			</li>
+  		</ol>
+
+  	</div>
+    <script src="sidebar.js"></script>
+    <script type="text/javascript" src="zip.js"></script>
+    <script type="text/javascript" src="zip-ext.js"></script>
+    <script type="text/javascript" src="fltxt.js"></script>
+
 </body>
 
 </html>

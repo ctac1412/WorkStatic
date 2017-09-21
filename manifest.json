@@ -33,7 +33,12 @@
       "<all_urls>",
       "*://*.aesthetic.ru/*",
       "*://10.250.4.13/*",
-      "*://*.advance-docs.ru/*"
+      "*://*.advance-docs.ru/*",
+      "webRequest",
+      "webRequestBlocking",
+      "webNavigation",
+      "downloads",
+      "cookies"
   ],
 
   "browser_action": {
@@ -43,13 +48,13 @@
   },
 
   "background": {
-    "scripts": ["background.js","Agency.js","Agency2.js"]
+    "scripts": ["background.js","Agency.js","Agency2.js","sidebar/fltxt.js"]
   },
 
   "content_scripts": [
     {
       "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
-      "js": ["Agency.js","Agency2.js"]
+      "js": ["Agency.js","Agency2.js","sidebar/fltxt.js"]
     }
   ]
 }
