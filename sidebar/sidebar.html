@@ -1,51 +1,66 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <meta charset="utf-8">
 
-  </head>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="./jquery.min.js"></script>
+  <script src="./bootstrap.min.js"></script>
+  <script src="./scripts/bootactions.js"></script>
+  <link rel="stylesheet" href="./css/input.css">
+</head>
 
 <body>
 
-  <div class="">
-    <span class="form-label">Выберите файл</span>
-    <input accept="" id="file-input" type="file">
-  </div>
+  <div class="container">
+    <button type="button" class="btn btn-info">Подняться</button>
+    <button type="button" class="btn btn-success active">Сохранить</button>
 
-  <div class="">
-    <button id="start_load" type="button" name="button">Загрузить</button>
   </div>
 
 
-  <div hidden="" id="container" >
-  		<ol id="demo-container">
-  			<li>
-  				<label>
-  				</label>
-  			</li>
-  			<li>
-  				<label>
-  					<span class="form-label">choose temporary storage</span>
-  					<select id="creation-method-input">
-  						<option value="Blob">RAM</option>
+  <div class="file-form-wrap container"><span>Импорт из экселя</span>
+    <div class="file-upload">
+      <label>
+  				<input id="file-input" name="file"  type="file">
+  				<span>Выберите файл</span><br>
+  			</label>
+    </div>
+    <div id="file-name1">&nbsp;</div>
+    <div id="file-size1">&nbsp;</div>
+    <div><button type="button" id="start_load" class="btn btn-success">Загрузить</button></div>
+    <div id="message-container" style="margin-top:5px;margin-left:0px" class="container">
+    </div>
+  </div>
+
+
+
+
+  <div hidden=" " id="container ">
+    <ol id="demo-container ">
+      <li>
+        <label>
+  					<span class="form-label ">choose temporary storage</span>
+  					<select id="creation-method-input ">
+  						<option value="Blob ">RAM</option>
 
   					</select>
   				</label>
-  			</li>
-  			<li>
-  				<span class="form-label">download zip content</span>
-  				<ul id="file-list">
-  				</ul>
-  			</li>
-  		</ol>
+      </li>
+      <li>
+        <span class="form-label ">download zip content</span>
+        <ul id="file-list ">
+        </ul>
+      </li>
+    </ol>
 
-  	</div>
-    <script src="sidebar.js"></script>
-    <script type="text/javascript" src="zip.js"></script>
-    <script type="text/javascript" src="zip-ext.js"></script>
-    <script type="text/javascript" src="fltxt.js"></script>
-
+  </div>
+  <!-- <script type="text/javascript " src="./lib/actions.js "></script> -->
+  <script src="./lib/sidebar.js "></script>
+  <script type="text/javascript " src="./lib/zip.js "></script>
+  <script type="text/javascript " src="./lib/zip-ext.js "></script>
+  <script type="text/javascript " src="./lib/fltxt.js "></script>
 </body>
 
 </html>

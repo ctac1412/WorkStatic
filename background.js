@@ -6,3 +6,4 @@
 //   pluginLogic.doAction(request.action,request.data);
 //   sendResponse({done:true});
 // });
+// web-ext --keep-profile-changes -p="C:\Users\Dep\AppData\Roaming\Mozilla\Firefox\Profiles\hg9ksw2o.dev" run

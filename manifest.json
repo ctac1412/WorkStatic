@@ -23,8 +23,6 @@
   "default_icon": "sidebar/sidebar_icon.png"
 },
 
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
-
   "permissions": [
       "storage",
       "activeTab",
@@ -40,7 +38,6 @@
       "downloads",
       "cookies"
   ],
-
   "browser_action": {
       "browser_style": false,
       "default_icon": "icons/32.png",
@@ -48,13 +45,13 @@
   },
 
   "background": {
-    "scripts": ["background.js","Agency.js","Agency2.js","sidebar/fltxt.js"]
+    "scripts": ["background.js","./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js"]
   },
 
   "content_scripts": [
     {
-      "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
-      "js": ["Agency.js","Agency2.js","sidebar/fltxt.js"]
+      "matches": ["*://*.advance-docs.ru/*", "*://yandex.ru/*"],
+      "js": ["./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js"]
     }
   ]
 }
