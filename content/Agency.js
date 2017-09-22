@@ -610,5 +610,3 @@ function LegalFormID(str) {
 //       }
 //       document.querySelector('#Keyword').value = out
 // }
-
-document.body.style.border = "5px solid blue";

@@ -18,6 +18,14 @@ function sharestring() {
     doc: _doc,
   }
 }
+function workbook() {
+  var _text = ""
+  var _doc = {}
+  return {
+    text: _text,
+    doc: _doc,
+  }
+}
 
 
 
@@ -31,7 +39,7 @@ function ParseToDoc(text) {
 function starting() {
   Sheet1.doc = ParseToDoc(Sheet1.text)
   sharestring.doc = ParseToDoc(sharestring.text)
-
+  workbook.doc = ParseToDoc(workbook.text)
 
   ReadSheetData(Sheet1.doc.querySelectorAll('worksheet sheetData row c'), Sheet1, sharestring).then(() => {
     console.log(Sheet1.data);

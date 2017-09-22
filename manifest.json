@@ -20,7 +20,8 @@
   "sidebar_action": {
   "default_title": "My sidebar",
   "default_panel": "sidebar/sidebar.html",
-  "default_icon": "sidebar/sidebar_icon.png"
+  "default_icon": "sidebar/sidebar_icon.png",
+  "browser_style": true
 },
 
   "permissions": [

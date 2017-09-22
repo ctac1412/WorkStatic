@@ -84,8 +84,10 @@
         return
       }
       model.getEntries(fileInput.files[0], function(entries) {
+          console.log(entries);
         entries.forEach(function(entry) {
-          if (entry.filename == "xl/worksheets/sheet1.xml" || entry.filename == "xl/sharedStrings.xml") {
+
+          if (entry.filename == "xl/worksheets/sheet1.xml" || entry.filename == "xl/sharedStrings.xml" || entry.filename == "xl/workbook.xml") {
             arrpromise.push(readfile(entry))
           }
         });
@@ -109,6 +111,9 @@
                 break;
               case "xl/sharedStrings.xml":
                 sharestring.text = event.target.result
+                break;
+              case "xl/workbook.xml":
+                workbook.text = event.target.result
                 break;
             }
             resolve()
