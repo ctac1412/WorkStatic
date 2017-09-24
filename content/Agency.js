@@ -1,114 +1,200 @@
-// browser.runtime.onMessage.addListener(request => {
-//
-//
-// });
-
 browser.runtime.onMessage.addListener(listener)
 
 function listener(request) {
-  console.log(request);
+switch (request.action) {
+  case "STARTPOST":
   return Promise.resolve().then(() => {
-    return PostForm()
-  });
+    return PostForm(request.fullObj)
+  }).then(()=>{
+    var allmsg = []
+    allmsg.push({
+      message: "загрузка прошла успешно",
+      class: "success"
+    })
+    allmsg.push({
+      message: "ТН ВЭД не были выгруженны.",
+      class: "warning"
+    })
+    allmsg.push({
+      message: "Филиалы не были выгруженны",
+      class: "warning"
+    })
+    return Promise.resolve(allmsg);
+  }).catch(err=>{
+    console.log(err.message);
+  })
+    break;
+  default:
+}
 }
 
 
 
 
-function PostForm() {
+
+function PostForm(data) {
 
   var form = document.querySelector('#document_form');
   var frmd = new FormData(form);
-  var _filetext = "Тест файл текста"
+  var data = data
+   console.log(data);
+  return PrepareData(data).then(()=>{
+    var eArr = frmd.entries();
+    frmd.forEach(()=>{
+        console.log(eArr.next().value);
+    })
 
-  return SetApplicant(frmd)
-    .then(() => {
-      return SetManufacturer(frmd)
-    }).then(() => {
-      return SetOther(frmd)
-    }).then(() => {
-      return fetch(form.action, {
-        method: 'POST',
-        credentials: 'include',
-        body: frmd
+     return fetch(form.action, {
+       method: 'POST',
+       credentials: 'include',
+       body: frmd
+     })
+   }).then((resp)=>{
+     console.log(resp.status);
+   })
+
+
+  function PrepareData(data) {
+    return Promise.resolve().then(()=>{
+        return   SetApplicant(data.Applicant)
+      }).then(()=>{
+        return   SetManufacturer(data.Manufacture)
+      }).then(()=>{
+        return   SetOther(data)
       })
-    })
-    .then((response) => {
-      console.log("response.status", response.status);
-      // window.location.reload(true);
-    })
-
-
-
-
-  function SetManufacturer(data) {
-    var obj = {
-      _location: "Foreign",
-      Title: "Моя первая иностарнная компания2",
-      Address: "а какой у нее адрес?",
-      PhisicalAddress: "",
-      CountryID: ""
-    }
-
-    return CountriID("Армения").then((id) => {
-      obj.CountryID = id
-    }).then(() => {
-      return SetContractor(obj)
-    }).then((ret) => {
-      data.set("ManufacturerTitle", ret.Title)
-      data.set("ManufacturerInfo", ret.Info)
-      data.set("ManufacturerID", ret.id)
-      data.set("CountryId", ret.CountryId)
-    })
   }
 
-  function SetApplicant(data) {
-    var obj = {
-      _location: "Local",
-      Address: "Address",
-      Phone: '799999999',
-      Email: '111@111.ru',
-      Fax: "",
-      Title: 'Общество с ограниченной ответственностью "Тестовый заявитель" 2',
-      ogrn: "1111111111113",
-      DirectorNameGenitive: "Фио+руководителя+в+родительном+падеже",
-      DirectorName: "Фио+руководителя",
-      DirectorPost: "должность+в+родительном+падеже",
-      PhisicalAddressTheSame: false,
-      PhisicalAddress: "Индеккс+и+адрес+местанахождения",
-      LegalFormID: "",
-      CountryID: "",
-      RegionID: "",
-      SecondCountryID: "",
-      SecondRegionID: ""
-    }
+  // return SetApplicant(frmd)
+  //   .then(() => {
+  //     return SetManufacturer(frmd)
+  //   }).then(() => {
+  //     return SetOther(frmd)
+  //   }).then(() => {
+  //     return fetch(form.action, {
+  //       method: 'POST',
+  //       credentials: 'include',
+  //       body: frmd
+  //     })
+  //   })
+  //   .then((response) => {
+  //     console.log("response.status", response.status);
+  //     // window.location.reload(true);
+  //   })
 
-    return LegalFormID("общество с ограниченной ответственностью").then((id) => {
-      obj.LegalFormID = id
+
+
+    function SetApplicant(data) {
+      var obj = data
+      return LegalFormID(obj.LegalFormID).then((id) => {
+        obj.LegalFormID = id
+      }).then(() => {
+        obj._location = _locationDetected(obj.CountryID)
+        return CountriID(obj.CountryID).then((id) => {
+          obj.CountryID = id
+        })
+      }).then(() => {
+        return RegionID(obj.RegionID).then((id) => {
+          obj.RegionID = id
+        })
+      }).then(() => {
+        return CountriID(obj.SecondCountryID).then((id) => {
+          obj.SecondCountryID = id
+        })
+      }).then(() => {
+        return RegionID(obj.SecondRegionID).then((id) => {
+          obj.SecondRegionID = id
+        })
+      }).then(() => {
+        return SetContractor(obj)
+      }).then((ret) => {
+
+        console.log(ret.Initials);
+        console.log(ret.Title);
+        console.log(ret.Info);
+        frmd.set("ApplicantInitials", [ret.Initials])
+        frmd.set("ApplicantTitle", ret.Title)
+        frmd.set("ApplicantInfo", ret.Info)
+        frmd.set("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName)
+        frmd.set("ApplicantID", ret.id)
+      });
+    }
+    // Id=242
+    // ClaimId=242
+    // DocumentId=1473
+    // DocumentTemplateId=111
+    // ParentLinkId
+    // StatementView=False
+    // ApplicantInitials=Васильев+Василий+Васильевич
+    // ApplicantType=Manufacturer
+    // ApplicantTitle=Общество+с+ограниченной+ответственностью+"Тестовый+заявитель"+2
+    // ApplicantInitials=Васильев+Василий+Васильевич
+    // ApplicantID=4
+    // ApplicantInfo=Место+нахождения+и+адрес+места+осуществления+деятельности:+Российская+Федерация,+Москва,+111111,+улица+Героев,+дом+1,+строение+1,+основной+государственный+регистрационный+номер:+1111111111113,+телефон:++74950000000,+адрес+электронной+почты:+reception@test.ru
+    // ApplicantAuthorizedPersonTitle
+    // ApplicantAuthorizedPerson=генерального+директора+Васильева+Василия+Васильевияа,+действующего+на+основании+устава
+    // ProductType=Part
+    // ProductInfo=Наименование+продукции+(вклю
+    // ProductIdentification=Сведения+о+продукции,+обеспечивающие+ее+идентификаци
+    // ShippingDocumentation=Реквизиты+товаросопроводите
+    // Part=500+штук
+    // Invoice=1241
+    // DeliveryContract=Номер+и+дата+договора+или+контракта+о+поставке+продукци
+    // ProductIdentificationOther=иная+инфа
+    // TNVED=0106
+    // ManufacturerTitle=Моя+первая+иностарнная+компания2
+    // CountryId=94
+    // ManufacturerID=97
+    // ManufacturerInfo=Место+нахождения+и+адрес+места+осуществления+деятельности:+а+какой+у+нее+адрес?,+Армения
+    // ManufacturerAffiliates
+    // Accordingly=в+соответствии+с:+(заполняе
+    // ReglamentIdsContainer=67
+    // ReglamentsText=ТР+ТС+033/2013+"О+безопасности+молока+и+молочной+продукции",+утвержден+Решением+Совета+Евразийской+экономической+комиссии+от+09.10.2013+года+№+67
+    // ReglamentsInfo
+    // SchemaID=48
+    // SchemaOther
+    // SchemaNotPublish=false
+    // ApplicantAgrees=-+выполнять+правила+декларирования;+
+    // -+обеспечивать+соответствие+продукции+требованиям+нормативных+документов,+на+соответствие+которым+она+была+задекларирована;+
+    // -+маркировать+единым+знаком+обращения+только+ту+продукцию,+которая+соответствует+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»,+и+на+которую+распространяется+действие+декларации+о+соответствии;
+    // -+при+установлении+несоответствия+продукции+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»+принимать+меры+по+недопущению+реализации+этой+продукции;
+    // -+оплатить+все+расходы+по+проведению+регистрации+декларации+о+соответствии;
+    // -+при+установлении+несоответствия+продукции+требованиям+нормативно+правовым+актам+принимать+меры+по+недопущению+реализации+этой+продукции.
+    // AcceptanceReason=Данные+о+протоколах+испытаний:
+    // AcceptanceReasonOther=Другие+основания:
+    // DocumentValidity
+    // AdditionalInfo=Дополнительные+сведения:
+    // Notes
+    // X-Requested-With=XMLHttpRequest
+
+  function SetManufacturer(data) {
+    var obj = data
+    return LegalFormID(obj.LegalFormID).then((id) => {
+        obj.LegalFormID = id
     }).then(() => {
-      return CountriID("Российская Федерация").then((id) => {
+        obj._location = _locationDetected(obj.CountryID)
+      return CountriID(obj.CountryID).then((id) => {
         obj.CountryID = id
       })
     }).then(() => {
-      return RegionID("Москва").then((id) => {
+      return RegionID(obj.RegionID).then((id) => {
         obj.RegionID = id
       })
     }).then(() => {
-      return CountriID("").then((id) => {
+      return CountriID(obj.SecondCountryID).then((id) => {
         obj.SecondCountryID = id
       })
     }).then(() => {
-      return RegionID("").then((id) => {
+      return RegionID(obj.SecondRegionID).then((id) => {
         obj.SecondRegionID = id
       })
     }).then(() => {
       return SetContractor(obj)
     }).then((ret) => {
-      data.set("ApplicantInitials", [ret.Initials])
-      data.set("ApplicantTitle", ret.Title)
-      data.set("ApplicantInfo", ret.Info)
-      data.set("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName)
-      data.set("ApplicantID", ret.id)
+      frmd.set("ApplicantInitials", [ret.Initials])
+      frmd.set("ManufacturerTitle", ret.Title)
+      frmd.set("ManufacturerInfo", ret.Info)
+      frmd.set("CountryId", ret.CountryId)
+      frmd.set("ManufacturerID", ret.id)
     });
   }
 
@@ -131,6 +217,7 @@ function PostForm() {
   }
 
   function ReglamentIdsContainer(str) {
+    var str = str
     if (!window.regscont || window.regscont.length == 0) {
       window.regscont = []
       document.querySelectorAll('#ReglamentIdsContainer option ').forEach(item => {
@@ -154,7 +241,7 @@ function PostForm() {
   }
 
   function schemaid(str) {
-    str = str.match(/(^[0-9]{1})/gi)[0]
+    var str = str.match(/(^[0-9]{1})/gi)[0]
     if (!window.schemaid || window.schemaid.length == 0) {
       window.schemaid = []
       document.querySelectorAll('#SchemaID option').forEach(item => {
@@ -178,7 +265,9 @@ function PostForm() {
   }
 
   function SetOther(data) {
-    console.log("SetOther", _filetext);
+
+
+    console.log(data);
 
     // var   obj = {
     //       "ProductType" : ProductType(""),
@@ -235,6 +324,7 @@ function PostForm() {
   }
 
   function RegionID(str) {
+    var str = str
     if (str == "") {
       return Promise.resolve("")
     }
@@ -258,6 +348,7 @@ function PostForm() {
 
 
   function CountriID(str) {
+    var str = str
     if (str == "") {
       return Promise.resolve("")
     }
@@ -285,6 +376,7 @@ function PostForm() {
 
 
   function AddContractor(obj) {
+    console.log("AddContractor",obj);
     return Promise.resolve().then(() => {
       var d = new FormData();
       switch (obj._location) {
@@ -348,18 +440,43 @@ function PostForm() {
       }).then((response) => {
         return response.text()
       }).then(text => {
+        console.log(text);
         parser = new DOMParser();
         doc = parser.parseFromString(text, "text/html");
-        return doc.querySelector('#Id').value
-      });
+        if (!document.querySelector('.alert.alert-danger')) {
+          return doc.querySelector('#Id').value
+        } else {
+          console.log(obj);
+          throw new crateFormException(document.querySelector('.alert.alert-danger').innerHTML)
+        }
+      })
     });
 
+  }
+
+  function _locationDetected(str) {
+    var result = ""
+    var str = str
+    switch (str.toLowerCase()) {
+      case "российская федерация":
+      case "казахстан":
+      case "республика беларусь":
+      case "армения":
+      case "киргизия":
+        result = "Local"
+        break;
+      default:
+        result = "Foreign"
+    }
+    return result
   }
 
   function GetContractor(obj) {
     var url = ""
     var str = ""
+    var obj = obj
     console.log(obj);
+
     switch (obj._location) {
       case "Local":
         str = obj.ogrn
@@ -402,6 +519,9 @@ function crateFormException(message, value) {
 };
 
 function LegalFormID(str) {
+  if(!str) {
+    return Promise.resolve("")
+  }
   if (!window.legarray) {
     window.legarray = []
     window.legarray.push({

@@ -84,7 +84,6 @@
         return
       }
       model.getEntries(fileInput.files[0], function(entries) {
-          console.log(entries);
         entries.forEach(function(entry) {
 
           if (entry.filename == "xl/worksheets/sheet1.xml" || entry.filename == "xl/sharedStrings.xml" || entry.filename == "xl/workbook.xml") {
