@@ -1,5 +1,4 @@
 browser.runtime.onMessage.addListener(listener)
-
 function listener(request) {
 switch (request.action) {
   case "STARTPOST":
