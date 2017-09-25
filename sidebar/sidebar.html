@@ -1,38 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/input.css">
   <script src="./jquery.min.js"></script>
   <script src="./bootstrap.min.js"></script>
   <script src="./scripts/bootactions.js"></script>
-  <link rel="stylesheet" href="./css/input.css">
 </head>
 
 <body>
 
-  <div class="container">
-    <button type="button" class="btn btn-info">Подняться</button>
-    <button type="button" class="btn btn-success active">Сохранить</button>
+  <div class="btn-group-vertical" role="group" aria-label="...">
+    <button id="FocusUp" type="button" class="btn btn-info"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i> Наверх</button>
+    <button type="button" class="btn btn-success"><i class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></i> Сохранить</button>
+
+
+
+
+    <input id="file-input" name="file" type="file"></input> <label for="file-input" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i>&nbsp; Выберете файл</label>
+    <div id="file-name1">Имя:</div>
+    <div id="file-size1">Размер:</div>
+    <button type="button" id="start_load" class="btn btn-success"><i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i> Загрузить</button>
+  </div>
+  <h4>Отчет о загрузке:</h4>
+  <div id="message-container" class="margin-container">
 
   </div>
-
-
-  <div class="file-form-wrap container"><span>Импорт из экселя</span>
-    <div class="file-upload">
-      <label>
-  				<input id="file-input" name="file"  type="file">
-  				<span>Выберите файл</span><br>
-  			</label>
-    </div>
-    <div id="file-name1">&nbsp;</div>
-    <div id="file-size1">&nbsp;</div>
-    <div><button type="button" id="start_load" class="btn btn-success">Загрузить</button></div>
-    <div id="message-container" style="margin-top:5px;margin-left:0px" class="container">
-    </div>
-  </div>
-
-
 
 
   <div hidden=" " id="container ">
@@ -54,6 +49,7 @@
     </ol>
 
   </div>
+
   <!-- <script type="text/javascript " src="./lib/actions.js "></script> -->
   <script src="./lib/sidebar.js "></script>
   <script type="text/javascript " src="./lib/zip.js "></script>

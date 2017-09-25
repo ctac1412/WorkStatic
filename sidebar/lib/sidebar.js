@@ -71,7 +71,19 @@
 
 
     //NOTE: LISTINER CHANGE
-
+    document.querySelector('#FocusUp').addEventListener("click", (e) => {
+      return browser.tabs.query({
+        currentWindow: true,
+        active: true
+      }).then((tabs) => {
+        return browser.tabs.sendMessage(
+          tabs[0].id,
+          Object.assign({}, {
+            action: "FocusUp"
+          })
+        )
+      })
+    })
 
     fileInput.addEventListener('change', function() {
       getFileParam()

@@ -7,9 +7,10 @@ function AddMessage(object) {
     nmsg.innerHTML = '<a href="#" class="close" data-dismiss= "alert" aria-label="close">×</a>' + item.message
     document.querySelector('#message-container').appendChild(nmsg)
   })
-
-
 }
+
+
+
 
 function getFileParam() {
   try {

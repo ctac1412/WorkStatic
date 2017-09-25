@@ -1,66 +1,112 @@
+var parentElement = document.querySelector('.form-header');
+var newElement = document.createElement("div")
+newElement.innerHTML = "<a id = 'FocusUp'>   </a> "
+parentElement.insertBefore(newElement, parentElement.firstChild);
 browser.runtime.onMessage.addListener(listener)
+
 function listener(request) {
-switch (request.action) {
-  case "STARTPOST":
-  return Promise.resolve().then(() => {
-    return PostForm(request.fullObj)
-  }).then(()=>{
-    var allmsg = []
-    allmsg.push({
-      message: "загрузка прошла успешно",
-      class: "success"
-    })
-    allmsg.push({
-      message: "ТН ВЭД не были выгруженны.",
-      class: "warning"
-    })
-    allmsg.push({
-      message: "Филиалы не были выгруженны",
-      class: "warning"
-    })
-    return Promise.resolve(allmsg);
-  }).catch(err=>{
-    console.log(err.message);
-  })
-    break;
-  default:
+  switch (request.action) {
+    case "STARTPOST":
+      return Promise.resolve().then(() => {
+        return PostForm(request.fullObj)
+      }).then(() => {
+        var allmsg = []
+        allmsg.push({
+          message: "загрузка прошла успешно",
+          class: "success"
+        })
+        allmsg.push({
+          message: "ТН ВЭД не были выгруженны.",
+          class: "warning"
+        })
+        allmsg.push({
+          message: "Филиалы не были выгруженны",
+          class: "warning"
+        })
+        return Promise.resolve(allmsg);
+      }).catch(err => {
+        var allmsg = []
+        allmsg.push({
+          message: err.message,
+          class: "danger"
+        })
+        return Promise.resolve(allmsg);
+      })
+    case "FocusUp":
+      FocusUp()
+      break;
+    default:
+  }
 }
+
+function FocusUp() {
+
+  document.querySelector('#FocusUp').focus();
+
 }
-
-
-
-
 
 function PostForm(data) {
 
   var form = document.querySelector('#document_form');
   var frmd = new FormData(form);
   var data = data
-   console.log(data);
-  return PrepareData(data).then(()=>{
-    var eArr = frmd.entries();
-    frmd.forEach(()=>{
-        console.log(eArr.next().value);
-    })
+  // var eArr = frmd.entries();
+  // var resarr = {}
+  // frmd.forEach(() => {
+  //   var item = eArr.next().value
+  //   resarr[item[0]] = item[1]
+  // })
+  // console.log(resarr);
+  // console.log(frmd.getAll('ReglamentIdsContainer'))
 
-     return fetch(form.action, {
-       method: 'POST',
-       credentials: 'include',
-       body: frmd
-     })
-   }).then((resp)=>{
-     console.log(resp.status);
-   })
+  var eArr = frmd.entries();
+  frmd.forEach((e) => {
+    var item = eArr.next().value
+    switch (item[0]) {
+      case "Id":
+      case "ClaimId":
+      case "DocumentId":
+      case "DocumentTemplateId":
+      case "ParentLinkId":
+      case "StatementView":
+      case "ApplicantAgrees":
+      case "SchemaNotPublish":
+      case "X-Requested-With":
+        break;
+      default:
+        frmd.set(item[0], "")
+    }
+  })
+
+
+
+
+  return PrepareData(data).then(() => {
+    var eArr = frmd.entries();
+    var resarr = {}
+    frmd.forEach(() => {
+      var item = eArr.next().value
+      resarr[item[0]] = item[1]
+    })
+    console.log(resarr);
+    return fetch(form.action, {
+      method: 'POST',
+      credentials: 'include',
+      body: frmd
+    })
+  }).then((resp) => {
+    console.log(resp.status);
+  })
 
 
   function PrepareData(data) {
-    return Promise.resolve().then(()=>{
-        return   SetApplicant(data.Applicant)
-      }).then(()=>{
-        return   SetManufacturer(data.Manufacture)
-      }).then(()=>{
-        return   SetOther(data)
-      })
+    return Promise.resolve().then(() => {
+      return SetApplicant(data.Applicant)
+    }).then(() => {
+      return SetManufacturer(data.Manufacture)
+    }).then(() => {
+      return SetOther(data)
+    })
   }
 
   // return SetApplicant(frmd)
@@ -82,95 +128,14 @@ function PostForm(data) {
 
 
 
-    function SetApplicant(data) {
-      var obj = data
-      return LegalFormID(obj.LegalFormID).then((id) => {
-        obj.LegalFormID = id
-      }).then(() => {
-        obj._location = _locationDetected(obj.CountryID)
-        return CountriID(obj.CountryID).then((id) => {
-          obj.CountryID = id
-        })
-      }).then(() => {
-        return RegionID(obj.RegionID).then((id) => {
-          obj.RegionID = id
-        })
-      }).then(() => {
-        return CountriID(obj.SecondCountryID).then((id) => {
-          obj.SecondCountryID = id
-        })
-      }).then(() => {
-        return RegionID(obj.SecondRegionID).then((id) => {
-          obj.SecondRegionID = id
-        })
-      }).then(() => {
-        return SetContractor(obj)
-      }).then((ret) => {
-
-        console.log(ret.Initials);
-        console.log(ret.Title);
-        console.log(ret.Info);
-        frmd.set("ApplicantInitials", [ret.Initials])
-        frmd.set("ApplicantTitle", ret.Title)
-        frmd.set("ApplicantInfo", ret.Info)
-        frmd.set("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName)
-        frmd.set("ApplicantID", ret.id)
-      });
-    }
-    // Id=242
-    // ClaimId=242
-    // DocumentId=1473
-    // DocumentTemplateId=111
-    // ParentLinkId
-    // StatementView=False
-    // ApplicantInitials=Васильев+Василий+Васильевич
-    // ApplicantType=Manufacturer
-    // ApplicantTitle=Общество+с+ограниченной+ответственностью+"Тестовый+заявитель"+2
-    // ApplicantInitials=Васильев+Василий+Васильевич
-    // ApplicantID=4
-    // ApplicantInfo=Место+нахождения+и+адрес+места+осуществления+деятельности:+Российская+Федерация,+Москва,+111111,+улица+Героев,+дом+1,+строение+1,+основной+государственный+регистрационный+номер:+1111111111113,+телефон:++74950000000,+адрес+электронной+почты:+reception@test.ru
-    // ApplicantAuthorizedPersonTitle
-    // ApplicantAuthorizedPerson=генерального+директора+Васильева+Василия+Васильевияа,+действующего+на+основании+устава
-    // ProductType=Part
-    // ProductInfo=Наименование+продукции+(вклю
-    // ProductIdentification=Сведения+о+продукции,+обеспечивающие+ее+идентификаци
-    // ShippingDocumentation=Реквизиты+товаросопроводите
-    // Part=500+штук
-    // Invoice=1241
-    // DeliveryContract=Номер+и+дата+договора+или+контракта+о+поставке+продукци
-    // ProductIdentificationOther=иная+инфа
-    // TNVED=0106
-    // ManufacturerTitle=Моя+первая+иностарнная+компания2
-    // CountryId=94
-    // ManufacturerID=97
-    // ManufacturerInfo=Место+нахождения+и+адрес+места+осуществления+деятельности:+а+какой+у+нее+адрес?,+Армения
-    // ManufacturerAffiliates
-    // Accordingly=в+соответствии+с:+(заполняе
-    // ReglamentIdsContainer=67
-    // ReglamentsText=ТР+ТС+033/2013+"О+безопасности+молока+и+молочной+продукции",+утвержден+Решением+Совета+Евразийской+экономической+комиссии+от+09.10.2013+года+№+67
-    // ReglamentsInfo
-    // SchemaID=48
-    // SchemaOther
-    // SchemaNotPublish=false
-    // ApplicantAgrees=-+выполнять+правила+декларирования;+
-    // -+обеспечивать+соответствие+продукции+требованиям+нормативных+документов,+на+соответствие+которым+она+была+задекларирована;+
-    // -+маркировать+единым+знаком+обращения+только+ту+продукцию,+которая+соответствует+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»,+и+на+которую+распространяется+действие+декларации+о+соответствии;
-    // -+при+установлении+несоответствия+продукции+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»+принимать+меры+по+недопущению+реализации+этой+продукции;
-    // -+оплатить+все+расходы+по+проведению+регистрации+декларации+о+соответствии;
-    // -+при+установлении+несоответствия+продукции+требованиям+нормативно+правовым+актам+принимать+меры+по+недопущению+реализации+этой+продукции.
-    // AcceptanceReason=Данные+о+протоколах+испытаний:
-    // AcceptanceReasonOther=Другие+основания:
-    // DocumentValidity
-    // AdditionalInfo=Дополнительные+сведения:
-    // Notes
-    // X-Requested-With=XMLHttpRequest
-
-  function SetManufacturer(data) {
+  function SetApplicant(data) {
     var obj = data
+
+    obj.PhisicalAddressTheSame = WordToBoolen(obj.PhisicalAddressTheSame)
     return LegalFormID(obj.LegalFormID).then((id) => {
-        obj.LegalFormID = id
+      obj.LegalFormID = id
     }).then(() => {
-        obj._location = _locationDetected(obj.CountryID)
+      obj._location = _locationDetected(obj.CountryID)
       return CountriID(obj.CountryID).then((id) => {
         obj.CountryID = id
       })
@@ -190,11 +155,58 @@ function PostForm(data) {
       return SetContractor(obj)
     }).then((ret) => {
       frmd.set("ApplicantInitials", [ret.Initials])
+      frmd.set("ApplicantTitle", ret.Title)
+      frmd.set("ApplicantInfo", ret.Info)
+      frmd.set("ApplicantAuthorizedPerson", ret.DirectorPost + " " + ret.DirectorName)
+      frmd.set("ApplicantID", ret.id)
+    });
+  }
+
+  function SetManufacturer(data) {
+    var obj = data
+
+    obj.PhisicalAddressTheSame = WordToBoolen(obj.PhisicalAddressTheSame)
+    return LegalFormID(obj.LegalFormID).then((id) => {
+      obj.LegalFormID = id
+    }).then(() => {
+      obj._location = _locationDetected(obj.CountryID)
+      return CountriID(obj.CountryID).then((id) => {
+        obj.CountryID = id
+      })
+    }).then(() => {
+      return RegionID(obj.RegionID).then((id) => {
+        obj.RegionID = id
+      })
+    }).then(() => {
+      return CountriID(obj.SecondCountryID).then((id) => {
+        obj.SecondCountryID = id
+      })
+    }).then(() => {
+      return RegionID(obj.SecondRegionID).then((id) => {
+        obj.SecondRegionID = id
+      })
+    }).then(() => {
+      return SetContractor(obj)
+    }).then((ret) => {
       frmd.set("ManufacturerTitle", ret.Title)
       frmd.set("ManufacturerInfo", ret.Info)
       frmd.set("CountryId", ret.CountryId)
       frmd.set("ManufacturerID", ret.id)
     });
+  }
+
+  function WordToBoolen(str) {
+    var result
+    switch (str.toLowerCase()) {
+      case "да":
+        result = true
+        break;
+      case "нет":
+        result = true
+        break;
+    }
+
+    return result
   }
 
   function ProductType(str) {
@@ -233,7 +245,7 @@ function PostForm(data) {
       }
     })
     if (i) {
-      return i[0]
+      return i[0].id
     } else {
       return ""
     }
@@ -257,53 +269,102 @@ function PostForm(data) {
       }
     })
     if (i) {
-      return i[0]
+      return i[0].id
     } else {
       return ""
     }
   }
 
+  function ApplicantType(str) {
+    var str = str.toLowerCase()
+    if (!window.ApplicantType || window.ApplicantType.length == 0) {
+      window.ApplicantType = []
+      document.querySelectorAll('#ApplicantType option').forEach(item => {
+        window.ApplicantType.push({
+          id: item.value,
+          text: item.innerHTML.toLowerCase()
+        })
+      })
+    }
+
+    var i = window.ApplicantType.filter(item => {
+      if (item.text.includes(str)) {
+        return item
+      }
+    })
+    if (i) {
+      return i[0].id
+    } else {
+      return ""
+    }
+  }
+
+  function Reglaments(str) {
+    var str = str.match(/[\d\/]{8}/gi)
+    if (!window.Reglaments || window.Reglaments.length == 0) {
+      window.Reglaments = []
+      document.querySelectorAll('#ReglamentIdsContainer option').forEach(item => {
+        window.Reglaments.push({
+          id: item.value,
+          text: item.innerHTML
+        })
+      })
+    }
+
+    var i = window.Reglaments.filter(item => {
+      var res = item.text.match(/[\d\/]{8}/gi)
+
+      if (res && res[0].includes(str)) {
+        return item
+      }
+    })
+
+    if (i.length >= 1) {
+      return i
+    } else {
+
+      return ""
+    }
+  }
+
   function SetOther(data) {
+    data.Other.SchemaID = schemaid(data.Other.SchemaID)
+    data.Other.TypeApplication = ApplicantType(data.Other.TypeApplication)
+    var ReglamentsText = ""
+
+    data.Reglaments.forEach((item, index) => {
+      if (item !== "нет") {
 
 
-    console.log(data);
+        var res = Reglaments(item)[0]
+        if (res !== undefined) {
+          frmd.append("ReglamentIdsContainer", parseInt(res.id, 10))
+          console.log(index, data.Reglaments.length, res.id);
+          if (index == data.Reglaments.length - 1) {
+            ReglamentsText += res.innerHTML
+          } else {
+            ReglamentsText += res.text + ", "
+          }
+        }
+      }
+    })
+    ReglamentsText = ReglamentsText.replace(/(\, )$/, "")
+    frmd.set("ReglamentsText", ReglamentsText)
 
-    // var   obj = {
-    //       "ProductType" : ProductType(""),
-    //       "ProductInfo" : "", Наименование+продукци
-    //       "ProductIdentification" : "", Сведения+о+продукции,+обеспечивающие+ее+идентификацию+(тип,+марка
-    //       "ShippingDocumentation	" : "", Реквизиты+товаросопроводительной+документации+(обязательно
-    //       "Part" : "", Партия+(размер+партии+или+заводской+номер+изделия,+
-    //       "Invoice	" : "", Инвойс+№
-    //       "DeliveryContract	" : "", Номер+и+дата+договора
-    //       "ProductIdentificationOther	" : "", Иная+информация,+идентифицирующая
-    //       "TNVED	" : "",
-    //       "Accordingly	" : "", Стандарт,+стандарт+организации,+технические+условия+или+иной+док
-    //
-    //       "SchemaID" : "", 49
-    //       "SchemaOther" : "",
-    //       "SchemaNotPublish" : false,
-    //       "ApplicantAgrees" : "", -+выполнять+правила+декларирования;+-+обеспечивать+соответствие+продукции+требованиям+нормативных+документов,+на+соответствие+которым+она+была+задекларирована;+-+маркировать+единым+знаком+обращения+только+ту+продукцию,+которая+соответствует+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»,+и+на+которую+распространяется+действие+декларации+о+соответствии;-+при+установлении+несоответствия+продукции+требованиям+технического+регламента+Евразийского+экономического+союза+«*reglaments*»+принимать+меры+по+недопущению+реализации+этой+продукции;-+оплатить+все+расходы+по+проведению+регистрации+декларации+о+соответствии;-+при+установлении+несоответствия+продукции+требованиям+нормативно+правовым+актам+принимать+меры+по+недопущению+реализации+этой+продукции.
-    //       "AcceptanceReason" : "",
-    //       "AcceptanceReasonOther" : "",
-    //       "DocumentValidity" : "", 5+лет
-    //       "AdditionalInfo" : "",Дополнительные+сведения:
-    //       "Note" : ""
-    // }
+    return Promise.resolve().then((obj) => {
+      for (var key in data.Other) {
+        frmd.set(key, data.Other[key])
+      }
+    })
 
-    // "ReglamentsInfo	" : "", [44,52]
-    // console.log(ReglamentIdsContainer("004").id)
-    // "ReglamentsText	" : "",ТР+ТС+004/2011+"О+безопасности+низковольтного+оборудования",+утвержден+Решением+Комиссии+Таможенного+союза+от+16+августа+2011+года+№+768,+ТР+ТС+007/2011+"О+безопасности+продукции,+предназначенной+для+детей+и+подростков",+утвержден+Решением+Комиссии+Таможенного+союза+от+23+сентября+2011+года+№+797
-    // console.log(ReglamentIdsContainer("004").fulltext)
 
-    return
   }
 
   function SetContractor(obj) {
     var _id
     if (!obj) {
       console.log("Передаете пустой объект");
-      throw new crateFormException("Передаете пустой объект")
+      throw new error("Передаете пустой объект")
     }
 
     return GetContractor(obj).then((id) => {
@@ -317,9 +378,7 @@ function PostForm(data) {
     }).then((ret) => {
       ret.id = _id
       return ret
-    }).catch(error => {
-      console.log(error.message);
-    });
+    })
   }
 
   function RegionID(str) {
@@ -344,8 +403,6 @@ function PostForm(data) {
     });
   }
 
-
-
   function CountriID(str) {
     var str = str
     if (str == "") {
@@ -368,14 +425,28 @@ function PostForm(data) {
       } else {
         return i[0].id
       }
-
-      // return data[0].id
     });
   }
 
+  function _locationDetected(str) {
+    var result = ""
+    var str = str
+    switch (str.toLowerCase()) {
+      case "российская федерация":
+      case "казахстан":
+      case "республика беларусь":
+      case "армения":
+      case "киргизия":
+        result = "Local"
+        break;
+      default:
+        result = "Foreign"
+    }
+    return result
+  }
 
   function AddContractor(obj) {
-    console.log("AddContractor",obj);
+
     return Promise.resolve().then(() => {
       var d = new FormData();
       switch (obj._location) {
@@ -429,7 +500,6 @@ function PostForm(data) {
           d.append('OKPO', '')
           break;
         default:
-
       }
 
       return fetch("https://stage-2-docs.advance-docs.ru/Contractor/Update", {
@@ -442,40 +512,20 @@ function PostForm(data) {
         console.log(text);
         parser = new DOMParser();
         doc = parser.parseFromString(text, "text/html");
-        if (!document.querySelector('.alert.alert-danger')) {
-          return doc.querySelector('#Id').value
+        if (doc.querySelector('.alert.alert-danger')) {
+          throw new Error(doc.querySelector('.alert.alert-danger').innerHTML);
         } else {
-          console.log(obj);
-          throw new crateFormException(document.querySelector('.alert.alert-danger').innerHTML)
+          return doc.querySelector('#Id').value
         }
       })
-    });
-
+    })
   }
 
-  function _locationDetected(str) {
-    var result = ""
-    var str = str
-    switch (str.toLowerCase()) {
-      case "российская федерация":
-      case "казахстан":
-      case "республика беларусь":
-      case "армения":
-      case "киргизия":
-        result = "Local"
-        break;
-      default:
-        result = "Foreign"
-    }
-    return result
-  }
 
   function GetContractor(obj) {
     var url = ""
     var str = ""
     var obj = obj
-    console.log(obj);
-
     switch (obj._location) {
       case "Local":
         str = obj.ogrn
@@ -503,7 +553,7 @@ function PostForm(data) {
         return AddContractor(obj).then((id) => {
           console.log("return", id);
           return id
-        });
+        })
       }
     })
   }
@@ -518,7 +568,7 @@ function crateFormException(message, value) {
 };
 
 function LegalFormID(str) {
-  if(!str) {
+  if (!str) {
     return Promise.resolve("")
   }
   if (!window.legarray) {
@@ -677,7 +727,12 @@ function LegalFormID(str) {
       return item
     }
   })
-  return Promise.resolve(i[0].id)
+  if (i.length >= 1) {
+    return Promise.resolve(i[0].id)
+  } else {
+    return Promise.resolve("1")
+  }
+
 }
 
 // // выбираем целевой элемент

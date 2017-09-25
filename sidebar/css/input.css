@@ -1,15 +1,30 @@
 body {
 height: 100%;
 overflow-x: hidden;
-padding: 0;
+padding: 15px;
 font-size: 12px;
 font-family: Arial,sans-serif;
 background: url("./../body_bg.png") repeat;
+text-align:left;
+border-right:#747474 3px solid double;
+max-width: 200px;
+min-width: 180px;
+
 }
-		.file-upload input[type="file"]{
+
+.btn {
+	margin-bottom:5px;
+	font-size: 12px;
+}
+.margin-container{
+	margin-top:15px;
+}
+
+		input[type="file"]{
 			display: none;/* скрываем input file */
 		}
 		.file-form-wrap{
+			margin-top:10px;
 			width:auto;
 			/*margin:auto;*/
 		}

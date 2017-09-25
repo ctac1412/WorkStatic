@@ -18,6 +18,7 @@ function sharestring() {
     doc: _doc,
   }
 }
+
 function workbook() {
   var _text = ""
   var _doc = {}
@@ -43,72 +44,83 @@ function starting() {
   Sheet1.doc = ParseToDoc(Sheet1.text)
   sharestring.doc = ParseToDoc(sharestring.text)
   workbook.doc = ParseToDoc(workbook.text)
-  workbook.data =   Array.prototype.slice.call(workbook.doc.querySelectorAll("definedName"))
+  workbook.data = Array.prototype.slice.call(workbook.doc.querySelectorAll("definedName"))
 
 
   ReadSheetData(Sheet1.doc.querySelectorAll('worksheet sheetData row c'), Sheet1, sharestring).then(() => {
 
-      var fullObj = {}
-        // _locationDetected(),
-        // PhisicalAddressTheSame: WordToBoolen(""),
+    var fullObj = {}
+    // _locationDetected(),
+    // PhisicalAddressTheSame: WordToBoolen(""),
 
-  workbook.data = workbook.data.filter(item=>{
-      if(item.textContent.includes("Лист1")) { return item}
-    }).map(item=>{
-      var n, v="", i=[]
-      n   = item.getAttribute("name")
+    workbook.data = workbook.data.filter(item => {
+      if (item.textContent.includes("Лист1")) {
+        return item
+      }
+    }).map(item => {
+      var n, v = "",
+        i = []
+      n = item.getAttribute("name")
 
       switch (n) {
         case "Reglaments":
-        i = item.textContent.match(/\$[A-z]{1,3}\$[0-9]*/ig)
-        i.forEach((el,index,arr)=>{
-          arr[index] = el.replace(/\$/ig,"")
-        })
-      i = mkRange(i[0] + ":" + i[1])[0]
-      v = []
-      i.forEach((el,index)=>{
-        v.push(findValue(el))
-      })
-        break;
-      default:
-      i   = item.textContent.match(/\$[A-z]{1,3}\$[0-9]*/ig)[0].replace(/\$/ig,"")
-      v   = findValue(i)
-    }
-    var element = {
-      name : n,
-      index : i,
-        value:v
+          i = item.textContent.match(/\$[A-z]{1,3}\$[0-9]*/ig)
+          i.forEach((el, index, arr) => {
+            arr[index] = el.replace(/\$/ig, "")
+          })
+          i = mkRange(i[0] + ":" + i[1])[0]
+          v = []
+          i.forEach((el, index) => {
+            v.push(findValue(el))
+          })
+          break;
+        default:
+          i = item.textContent.match(/\$[A-z]{1,3}\$[0-9]*/ig)[0].replace(/\$/ig, "")
+          v = findValue(i)
       }
-    return element
+      var element = {
+        name: n,
+        index: i,
+        value: v
+      }
+      return element
 
     })
 
-  fullObj.Applicant = {}
-      for (var key in workbook.data) {
-          var res = workbook.data[key].name.split('.');
-          if (res.length ==1) {
-            fullObj[workbook.data[key].name] = workbook.data[key].value
-          } else if (res.length ==2) {
-            if (!fullObj[res[0]]) {fullObj[res[0]]={}};
-            fullObj[res[0]][res[1]] = workbook.data[key].value
-          }
-
+    fullObj.Applicant = {}
+    for (var key in workbook.data) {
+      var res = workbook.data[key].name.split('.');
+      if (res.length == 1) {
+        fullObj[workbook.data[key].name] = workbook.data[key].value
+      } else if (res.length == 2) {
+        if (!fullObj[res[0]]) {
+          fullObj[res[0]] = {}
+        };
+        fullObj[res[0]][res[1]] = workbook.data[key].value
       }
-      return fullObj
-  }).then((fullObj)=>{
+
+    }
+    return fullObj
+  }).then((fullObj) => {
     return browser.tabs.query({
       currentWindow: true,
       active: true
     }).then((tabs) => {
       return browser.tabs.sendMessage(
         tabs[0].id,
-        Object.assign({fullObj:fullObj},{action:"STARTPOST"})
+        Object.assign({
+          fullObj: fullObj
+        }, {
+          action: "STARTPOST"
+        })
       )
 
+    }).then(allmsg => {
+      if (allmsg) {
+        AddMessage(allmsg)
+      }
 
-    }).then(allmsg=>{
-      AddMessage(allmsg)
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err.message);
     })
   })
@@ -129,40 +141,30 @@ function findValue(cell) {
   }
 }
 
-function mkRange(str){
-  var x,y,ret=[];
-  var res=/(\D+)(\d+):(\D+)(\d+)/.exec(str);
-  if(!res) {
-    res=/(\D+)(\d+)/.exec(str);
-    return [[res[0]]];
+function mkRange(str) {
+  var x, y, ret = [];
+  var res = /(\D+)(\d+):(\D+)(\d+)/.exec(str);
+  if (!res) {
+    res = /(\D+)(\d+)/.exec(str);
+    return [
+      [res[0]]
+    ];
   }
-  var x1=((res[1]<=res[3])?res[1]:res[3]).charCodeAt(0);
-  var x2=((res[1]<=res[3])?res[3]:res[1]).charCodeAt(0);
-  var y1=(res[2]<=res[4])?res[2]:res[4];
-  var y2=(res[2]<=res[4])?res[4]:res[2];
+  var x1 = ((res[1] <= res[3]) ? res[1] : res[3]).charCodeAt(0);
+  var x2 = ((res[1] <= res[3]) ? res[3] : res[1]).charCodeAt(0);
+  var y1 = (res[2] <= res[4]) ? res[2] : res[4];
+  var y2 = (res[2] <= res[4]) ? res[4] : res[2];
 
-  for(x=x1;x<=x2;x++){
-    var arr=[];
-    for(y=y1;y<=y2;y++){
-      arr.push(String.fromCharCode(x)+y.toString());
+  for (x = x1; x <= x2; x++) {
+    var arr = [];
+    for (y = y1; y <= y2; y++) {
+      arr.push(String.fromCharCode(x) + y.toString());
     };
     ret.push(arr);
   }
   return ret;
 }
-function WordToBoolen(str) {
-  var result
-  switch (str.toLowerCase()) {
-    case "да":
-      result = true
-      break;
-    case "нет":
-      result = true
-      break;
-  }
 
-  return result
-}
 
 function ReadSheetData(c, file, valueFile) {
   return Promise.resolve().then(() => {
@@ -187,12 +189,3 @@ function ReadSheetData(c, file, valueFile) {
     }
   });
 }
-
-// <row r="3" spans="1:2" x14ac:dyDescent="0.25">
-//   <c r="A3" s="11" t="s">
-//     <v>25</v>
-//   </c>
-//   <c r="B3" s="14" t="s">
-//     <v>28</v>
-//   </c>
-// </row>
