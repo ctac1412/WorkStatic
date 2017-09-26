@@ -1,10 +1,44 @@
-var parentElement = document.querySelector('.form-header');
-var newElement = document.createElement("div")
-newElement.innerHTML = "<a id = 'FocusUp'>   </a> "
-parentElement.insertBefore(newElement, parentElement.firstChild);
 browser.runtime.onMessage.addListener(listener)
 
+
+function runtimeMessageSend(obj) {
+  browser.runtime.sendMessage(obj)
+}
+StartObserver()
+
+function CheckBtn() {
+  if (document.querySelector('#btnSave')) {
+    runtimeMessageSend({
+      sidebar: true,
+      action: "SaveOn"
+    })
+  } else {
+    runtimeMessageSend({
+      sidebar: true,
+      action: "SaveOff"
+    })
+  }
+}
+
+function StartObserver() {
+  var target = document.querySelector('.wrapper');
+  // create an observer instance
+  var observer = new MutationObserver((mutations) => {
+    CheckBtn()
+  });
+  // configuration of the observer:
+  var config = {
+    childList: true,
+    subtree: true
+  }
+  // pass in the target node, as well as the observer options
+  observer.observe(target, config);
+}
+
+
+
 function listener(request) {
+
   switch (request.action) {
     case "STARTPOST":
       return Promise.resolve().then(() => {
@@ -33,31 +67,24 @@ function listener(request) {
         return Promise.resolve(allmsg);
       })
     case "FocusUp":
-      FocusUp()
+      document.querySelector(".wrapper").scrollTop = 0
+      break;
+    case "CheckBtn":
+      CheckBtn()
+      break;
+    case "Save":
+      document.querySelector('#btnSave').click()
       break;
     default:
   }
 }
 
-function FocusUp() {
-
-  document.querySelector('#FocusUp').focus();
-
-}
 
 function PostForm(data) {
 
   var form = document.querySelector('#document_form');
   var frmd = new FormData(form);
   var data = data
-  // var eArr = frmd.entries();
-  // var resarr = {}
-  // frmd.forEach(() => {
-  //   var item = eArr.next().value
-  //   resarr[item[0]] = item[1]
-  // })
-  // console.log(resarr);
-  // console.log(frmd.getAll('ReglamentIdsContainer'))
 
   var eArr = frmd.entries();
   frmd.forEach((e) => {
@@ -94,8 +121,14 @@ function PostForm(data) {
       credentials: 'include',
       body: frmd
     })
-  }).then((resp) => {
-    console.log(resp.status);
+  }).then((responce) => {
+    return responce.text()
+  }).then((text) => {
+    var parser = new DOMParser()
+    var doc = parser.parseFromString(text, "text/html");
+    $("#document_container").html(text);
+    $("#footer_spinner").hide();
+    $("#footer_content").hide();
   })
 
 
@@ -330,6 +363,8 @@ function PostForm(data) {
   function SetOther(data) {
     data.Other.SchemaID = schemaid(data.Other.SchemaID)
     data.Other.TypeApplication = ApplicantType(data.Other.TypeApplication)
+    data.Other.ProductType = ProductType(data.Other.ProductType)
+
     var ReglamentsText = ""
 
     data.Reglaments.forEach((item, index) => {

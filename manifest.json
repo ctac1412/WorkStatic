@@ -52,7 +52,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.advance-docs.ru/*", "*://yandex.ru/*"],
-      "js": ["./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js"]
+      "js": ["./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js","jQuery.js"]
     }
   ]
 }

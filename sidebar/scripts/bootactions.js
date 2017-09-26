@@ -1,6 +1,6 @@
 function AddMessage(object) {
   // success,info,warning,danger
-  document.querySelector('#message-container').innerHTML = ""
+  document.querySelector('#message-container').innerHTML = "<h4>Отчет о загрузке:</h4>"
   object.forEach(item => {
     var nmsg = document.createElement("div")
     nmsg.className = 'alert alert-' + item.class + ' alert-dismissable'
@@ -9,8 +9,44 @@ function AddMessage(object) {
   })
 }
 
+browser.runtime.onMessage.addListener(notify);
 
+browser.tabs.onActivated.addListener(updateContent);
+browser.tabs.onUpdated.addListener(updateContent);
 
+function updateContent() {
+  browser.tabs.query({
+    currentWindow: true,
+    active: true
+  }).then((tabs) => {
+    return browser.tabs.sendMessage(
+      tabs[0].id,
+      Object.assign({}, {
+        action: "CheckBtn"
+      })
+    )
+  })
+}
+
+function notify(e) {
+  if (e.sidebar) {
+    switch (e.action) {
+      case "SaveOn":
+        var i = document.querySelector("#Save")
+        if (i.hasAttribute("disabled")) {
+          i.removeAttribute("disabled")
+        }
+        console.log("Включили");
+        break;
+      case "SaveOff":
+        document.querySelector("#Save").setAttribute("disabled", "disabled")
+        console.log("Выключили");
+        break;
+      default:
+
+    }
+  }
+}
 
 function getFileParam() {
   try {

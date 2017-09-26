@@ -14,47 +14,47 @@
 
   <div class="btn-group-vertical" role="group" aria-label="...">
     <button id="FocusUp" type="button" class="btn btn-info"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i> Наверх</button>
-    <button type="button" class="btn btn-success"><i class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></i> Сохранить</button>
+    <button id="Save" type="button" disabled="disabled" class="btn btn-success"><i class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></i> Сохранить</button>
 
 
 
 
     <input id="file-input" name="file" type="file"></input> <label for="file-input" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i>&nbsp; Выберете файл</label>
     <div id="file-name1">Имя:</div>
-    <div id="file-size1">Размер:</div>
+
+    <div id="file-size1" style="margin-bottom:5px">Размер:</div>
     <button type="button" id="start_load" class="btn btn-success"><i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i> Загрузить</button>
   </div>
-  <h4>Отчет о загрузке:</h4>
-  <div id="message-container" class="margin-container">
 
+  <div id="message-container" class="margin-container">
   </div>
 
 
-  <div hidden=" " id="container ">
-    <ol id="demo-container ">
+  <div hidden="" id="container">
+    <ol id="demo-container">
       <li>
         <label>
-  					<span class="form-label ">choose temporary storage</span>
-  					<select id="creation-method-input ">
-  						<option value="Blob ">RAM</option>
+  					<span class="form-label">choose temporary storage</span>
+  					<select id="creation-method-input">
+  						<option value="Blob">RAM</option>
 
   					</select>
   				</label>
       </li>
       <li>
-        <span class="form-label ">download zip content</span>
-        <ul id="file-list ">
+        <span class="form-label">download zip content</span>
+        <ul id="file-list">
         </ul>
       </li>
     </ol>
 
   </div>
 
-  <!-- <script type="text/javascript " src="./lib/actions.js "></script> -->
-  <script src="./lib/sidebar.js "></script>
-  <script type="text/javascript " src="./lib/zip.js "></script>
-  <script type="text/javascript " src="./lib/zip-ext.js "></script>
-  <script type="text/javascript " src="./lib/fltxt.js "></script>
+  <!-- <script type="text/javascript" src="./lib/actions.js"></script> -->
+  <script src="./lib/sidebar.js"></script>
+  <script type="text/javascript" src="./lib/zip.js"></script>
+  <script type="text/javascript" src="./lib/zip-ext.js"></script>
+  <script type="text/javascript" src="./lib/fltxt.js"></script>
 </body>
 
 </html>

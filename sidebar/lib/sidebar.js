@@ -65,6 +65,7 @@
   (function() {
     var fileInput = document.getElementById("file-input");
     var btnStart = document.querySelector('#start_load');
+
     // var unzipProgress = document.createElement("progress");
     // var fileList = document.getElementById("file-list");
     // var creationMethodInput = document.getElementById("creation-method-input");
@@ -80,6 +81,20 @@
           tabs[0].id,
           Object.assign({}, {
             action: "FocusUp"
+          })
+        )
+      })
+    })
+
+    document.querySelector('#Save').addEventListener("click", (e) => {
+      return browser.tabs.query({
+        currentWindow: true,
+        active: true
+      }).then((tabs) => {
+        return browser.tabs.sendMessage(
+          tabs[0].id,
+          Object.assign({}, {
+            action: "Save"
           })
         )
       })
