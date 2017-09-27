@@ -102,6 +102,7 @@
 
     fileInput.addEventListener('change', function() {
       getFileParam()
+      document.querySelector('#message-container').innerHTML = ""
     })
 
     btnStart.addEventListener('click', function() {

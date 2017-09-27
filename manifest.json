@@ -1,20 +1,19 @@
 {
   "manifest_version": 2,
-  "name": "Помощник - эксперта",
-  "version": "0.1",
+  "name": "Импорт экселя в Адванс",
+  "version": "0.3",
 
-  "description": "Инфа",
+  "description": "Плагин позволяет импортировать данные из шаблона Excel в форму Advance",
 
   "applications": {
     "gecko": {
-      "id": "dom333122@yandex.ru",
+      "id": "Adv-import-Excel@advance-docs.ru",
       "strict_min_version": "49.0"
     }
   },
 
   "icons": {
-    "48": "icons/48.png",
-    "96": "icons/96.png"
+    "48": "icons/48.png"
   },
 
   "sidebar_action": {
@@ -51,7 +50,7 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.advance-docs.ru/*", "*://yandex.ru/*"],
+      "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
       "js": ["./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js","jQuery.js"]
     }
   ]

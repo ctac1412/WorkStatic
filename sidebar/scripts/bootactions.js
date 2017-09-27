@@ -36,11 +36,9 @@ function notify(e) {
         if (i.hasAttribute("disabled")) {
           i.removeAttribute("disabled")
         }
-        console.log("Включили");
         break;
       case "SaveOff":
         document.querySelector("#Save").setAttribute("disabled", "disabled")
-        console.log("Выключили");
         break;
       default:
 

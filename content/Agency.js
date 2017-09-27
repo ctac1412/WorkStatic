@@ -1,5 +1,5 @@
 browser.runtime.onMessage.addListener(listener)
-
+var DomenUrl = location.hostname.replace(".advance-docs.ru", "")
 
 function runtimeMessageSend(obj) {
   browser.runtime.sendMessage(obj)
@@ -235,7 +235,7 @@ function PostForm(data) {
         result = true
         break;
       case "нет":
-        result = true
+        result = false
         break;
     }
 
@@ -295,7 +295,6 @@ function PostForm(data) {
         })
       })
     }
-    console.log(window.schemaid)
     var i = window.schemaid.filter(item => {
       if (item.text.includes(str)) {
         return item
@@ -362,7 +361,11 @@ function PostForm(data) {
 
   function SetOther(data) {
     data.Other.SchemaID = schemaid(data.Other.SchemaID)
-    data.Other.TypeApplication = ApplicantType(data.Other.TypeApplication)
+    data.Other.ApplicantType = ApplicantType(data.Other.ApplicantType)
+    if (data.Other.ApplicantType == "AuthorizedPerson") {
+      data.Other.ApplicantAuthorizedPersonTitle = "-уполномоченное+изготовителем+лицо+на+основании"
+    }
+
     data.Other.ProductType = ProductType(data.Other.ProductType)
 
     var ReglamentsText = ""
@@ -404,7 +407,7 @@ function PostForm(data) {
 
     return GetContractor(obj).then((id) => {
       _id = id
-      return fetch("https://stage-2-docs.advance-docs.ru/Contractor/GetDescription?id=" + id + "&ogrnAtStart=false&splitReg=false&fullInitials=true&version=EA&manufacturer=false", {
+      return fetch("https://" + DomenUrl + ".advance-docs.ru/Contractor/GetDescription?id=" + id + "&ogrnAtStart=false&splitReg=false&fullInitials=true&version=EA&manufacturer=false", {
         method: 'GET',
         credentials: 'include'
       }).then((response, id) => {
@@ -422,7 +425,7 @@ function PostForm(data) {
       return Promise.resolve("")
     }
     // console.log("https://stage-2-docs.advance-docs.ru/Region/Search?q=" + str + "&CountryID=1");
-    return fetch("https://stage-2-docs.advance-docs.ru/Region/Search?q=" + str + "&CountryID=1", {
+    return fetch("https://" + DomenUrl + ".advance-docs.ru/Region/Search?q=" + str + "&CountryID=1", {
       method: 'GET',
       credentials: 'include'
     }).then((response) => {
@@ -443,7 +446,7 @@ function PostForm(data) {
     if (str == "") {
       return Promise.resolve("")
     }
-    return fetch("https://stage-2-docs.advance-docs.ru/Contractor/CountriesList?location=Foreign", {
+    return fetch("https://" + DomenUrl + ".advance-docs.ru/Contractor/CountriesList?location=Foreign", {
       method: 'GET',
       credentials: 'include'
     }).then((response) => {
@@ -513,7 +516,7 @@ function PostForm(data) {
           d.append('RegionID', obj.RegionID)
           d.append('Phone', obj.Phone)
           d.append('Email', obj.Email)
-          d.append('Fax', obj.Fax)
+          // d.append('Fax', obj.Fax)
           d.append('OGRN', obj.ogrn)
 
           d.append('PhisicalAddressTheSame', obj.PhisicalAddressTheSame)
@@ -537,7 +540,7 @@ function PostForm(data) {
         default:
       }
 
-      return fetch("https://stage-2-docs.advance-docs.ru/Contractor/Update", {
+      return fetch("https://" + DomenUrl + ".advance-docs.ru/Contractor/Update", {
         method: 'POST',
         credentials: 'include',
         body: d
@@ -573,7 +576,7 @@ function PostForm(data) {
     if (!str) {
       throw new crateFormException("Нет данных по компании")
     }
-    url = "https://stage-2-docs.advance-docs.ru/Contractor/Search?q=" + str;
+    url = "https://" + DomenUrl + ".advance-docs.ru/Contractor/Search?q=" + str;
     console.log(url);
     return fetch(url, {
       method: 'GET',
