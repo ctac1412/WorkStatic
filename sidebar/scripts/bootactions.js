@@ -11,22 +11,7 @@ function AddMessage(object) {
 
 browser.runtime.onMessage.addListener(notify);
 
-browser.tabs.onActivated.addListener(updateContent);
-browser.tabs.onUpdated.addListener(updateContent);
 
-function updateContent() {
-  browser.tabs.query({
-    currentWindow: true,
-    active: true
-  }).then((tabs) => {
-    return browser.tabs.sendMessage(
-      tabs[0].id,
-      Object.assign({}, {
-        action: "CheckBtn"
-      })
-    )
-  })
-}
 
 function notify(e) {
   if (e.sidebar) {

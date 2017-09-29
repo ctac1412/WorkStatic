@@ -71,7 +71,42 @@
     // var creationMethodInput = document.getElementById("creation-method-input");
 
 
-    //NOTE: LISTINER CHANGE
+    //NOTE: LISTINER CHANG
+    document.querySelector('#LoadTemp').addEventListener("click", (e) => {
+      return browser.tabs.query({
+        currentWindow: true,
+        active: true
+      }).then((tabs) => {
+        return browser.tabs.sendMessage(
+          tabs[0].id,
+          Object.assign({}, {
+            action: "LoadTemp"
+          })
+        )
+      }).then(allmsg => {
+        if (allmsg) {
+          AddMessage(allmsg)
+        }
+      }).catch((err) => {
+        console.log(err.message);
+      })
+    })
+
+    document.querySelector('#testget').addEventListener("click", (e) => {
+      return browser.tabs.query({
+        currentWindow: true,
+        active: true
+      }).then((tabs) => {
+        return browser.tabs.sendMessage(
+          tabs[0].id,
+          Object.assign({}, {
+            action: "testget"
+          })
+        )
+      })
+    })
+
+
     document.querySelector('#FocusUp').addEventListener("click", (e) => {
       return browser.tabs.query({
         currentWindow: true,

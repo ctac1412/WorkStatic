@@ -75,10 +75,123 @@ function listener(request) {
     case "Save":
       document.querySelector('#btnSave').click()
       break;
+    case "LoadTemp":
+      return LoadTemp()
+      break;
     default:
   }
 }
 
+
+
+function InfoRegion() {
+
+}
+
+function InfoCountry(CountryIDInfo) {
+  console.log(CountryIDInfo);
+  d = new FormData();
+  d.append('SearchRequest', CountryIDInfo);
+  d.append('GridLayout', "False");
+  d.append('OnlyActive', "False");
+  d.append('DoSearch', "True");
+  d.append('SortKey', "Id");
+  d.append('ActionName', "Index");
+  d.append('ControllerName', "Home");
+  d.append('SortAscending', "True");
+  d.append('Page', "1");
+  d.append('RecordsPerPage', "10");
+  d.append('TotalRecords', "175");
+  d.append('StatusAvailable', "True");
+  d.append('Readonly', "False");
+  return fetch("https://" + DomenUrl + ".advance-docs.ru/Country", {
+    method: 'POST',
+    credentials: 'include',
+    body: d
+  }).then((response) => {
+    return response.text()
+  }).then((text) => {
+    var parser = new DOMParser()
+    var doc = parser.parseFromString(text, "text/html");
+    console.log(doc.querySelector('.date').innerHTML);
+    return doc.querySelector('.date').innerHTML
+  })
+}
+
+function LoadTemp() {
+  function getFormData(url, formselector) {
+    console.log(url);
+    return fetch(url, {
+      method: 'GET',
+      credentials: 'include'
+    }).then((response) => {
+      return response.text()
+    }).then((text) => {
+      var parser = new DOMParser()
+      var doc = parser.parseFromString(text, "text/html");
+      var form = doc.querySelector('#' + formselector);
+      var frmd = new FormData(form);
+      var eArr = frmd.entries();
+      var resarr = {}
+      frmd.forEach(() => {
+        var item = eArr.next().value
+        resarr[item[0]] = item[1]
+      })
+      resarr.CountryIDInfo = doc.querySelector("#CountryID").selectedOptions[0].innerHTML
+      var i = doc.querySelector("#RegionID")
+      if (i !== null) {
+        return fetch("https://" + DomenUrl + ".advance-docs.ru/Region/Show?id=" + i.value, {
+          method: 'GET',
+          credentials: 'include'
+        }).then((response) => {
+          return response.json()
+        }).then((resp) => {
+          resarr.RegionIDInfo = resp.text
+          return resarr
+        })
+      } else {
+        return resarr
+      }
+    })
+  }
+  var form = document.querySelector('#document_form');
+  var frmd = new FormData(form);
+  var eArr = frmd.entries();
+  var resarr = {}
+  frmd.forEach(() => {
+    var item = eArr.next().value
+    resarr[item[0]] = item[1]
+  })
+  console.log(resarr);
+  return getFormData("https://" + DomenUrl + ".advance-docs.ru/Contractor/Edit/" + resarr.ApplicantID, "frmContractor")
+    .then((obj) => {
+      resarr.Applicant = obj
+      console.log(resarr);
+      return InfoCountry(resarr.Applicant.CountryIDInfo).then((value) => {
+
+        resarr.Applicant.CountryInfo = value
+      }).then(() => {
+        return getFormData("https://" + DomenUrl + ".advance-docs.ru/Contractor/Edit/" + resarr.ManufacturerID, "frmContractor")
+      });
+    }).then((obj) => {
+      resarr.Manufacturer = obj
+      return InfoCountry(resarr.Manufacturer.CountryIDInfo).then((value) => {
+        resarr.Manufacturer.CountryInfo = value
+      })
+
+    }).then(() => {
+      console.log(resarr);
+      return browser.storage.local.set({
+        tempDoc: resarr
+      })
+    }).then(() => {
+      var allmsg = [{
+        message: "Данные : " + document.querySelector('#Id').value + " документа загружены в память",
+        class: "success"
+      }]
+      return allmsg
+    })
+}
 
 function PostForm(data) {
 
@@ -104,8 +217,6 @@ function PostForm(data) {
         frmd.set(item[0], "")
     }
   })
-
-
 
 
   return PrepareData(data).then(() => {
@@ -141,24 +252,6 @@ function PostForm(data) {
       return SetOther(data)
     })
   }
-
-  // return SetApplicant(frmd)
-  //   .then(() => {
-  //     return SetManufacturer(frmd)
-  //   }).then(() => {
-  //     return SetOther(frmd)
-  //   }).then(() => {
-  //     return fetch(form.action, {
-  //       method: 'POST',
-  //       credentials: 'include',
-  //       body: frmd
-  //     })
-  //   })
-  //   .then((response) => {
-  //     console.log("response.status", response.status);
-  //     // window.location.reload(true);
-  //   })
-
 
 
   function SetApplicant(data) {
@@ -203,10 +296,12 @@ function PostForm(data) {
       obj.LegalFormID = id
     }).then(() => {
       obj._location = _locationDetected(obj.CountryID)
+      console.log(obj.CountryID);
       return CountriID(obj.CountryID).then((id) => {
         obj.CountryID = id
       })
     }).then(() => {
+      console.log(obj.CountryID);
       return RegionID(obj.RegionID).then((id) => {
         obj.RegionID = id
       })
@@ -221,10 +316,12 @@ function PostForm(data) {
     }).then(() => {
       return SetContractor(obj)
     }).then((ret) => {
+      console.log(ret);
       frmd.set("ManufacturerTitle", ret.Title)
       frmd.set("ManufacturerInfo", ret.Info)
       frmd.set("CountryId", ret.CountryId)
       frmd.set("ManufacturerID", ret.id)
+
     });
   }
 
@@ -260,29 +357,7 @@ function PostForm(data) {
     return result
   }
 
-  function ReglamentIdsContainer(str) {
-    var str = str
-    if (!window.regscont || window.regscont.length == 0) {
-      window.regscont = []
-      document.querySelectorAll('#ReglamentIdsContainer option ').forEach(item => {
-        window.regscont.push({
-          id: item.value,
-          text: item.innerHTML.toLowerCase().replace(/(^г\.*)|([\s\.\,\-])/gi, ''),
-          fulltext: item.innerHTML
-        })
-      })
-    }
-    var i = window.regscont.filter(item => {
-      if (item.text.includes(str)) {
-        return item
-      }
-    })
-    if (i) {
-      return i[0].id
-    } else {
-      return ""
-    }
-  }
+
 
   function schemaid(str) {
     var str = str.match(/(^[0-9]{1})/gi)[0]
@@ -363,7 +438,7 @@ function PostForm(data) {
     data.Other.SchemaID = schemaid(data.Other.SchemaID)
     data.Other.ApplicantType = ApplicantType(data.Other.ApplicantType)
     if (data.Other.ApplicantType == "AuthorizedPerson") {
-      data.Other.ApplicantAuthorizedPersonTitle = "-уполномоченное+изготовителем+лицо+на+основании"
+      data.Other.ApplicantAuthorizedPersonTitle = "-уполномоченное изготовителем лицо на основании"
     }
 
     data.Other.ProductType = ProductType(data.Other.ProductType)
@@ -377,7 +452,6 @@ function PostForm(data) {
         var res = Reglaments(item)[0]
         if (res !== undefined) {
           frmd.append("ReglamentIdsContainer", parseInt(res.id, 10))
-          console.log(index, data.Reglaments.length, res.id);
           if (index == data.Reglaments.length - 1) {
             ReglamentsText += res.innerHTML
           } else {
@@ -406,6 +480,7 @@ function PostForm(data) {
     }
 
     return GetContractor(obj).then((id) => {
+
       _id = id
       return fetch("https://" + DomenUrl + ".advance-docs.ru/Contractor/GetDescription?id=" + id + "&ogrnAtStart=false&splitReg=false&fullInitials=true&version=EA&manufacturer=false", {
         method: 'GET',
@@ -414,6 +489,7 @@ function PostForm(data) {
         return response.json()
       });
     }).then((ret) => {
+      console.log(ret);
       ret.id = _id
       return ret
     })
@@ -424,7 +500,6 @@ function PostForm(data) {
     if (str == "") {
       return Promise.resolve("")
     }
-    // console.log("https://stage-2-docs.advance-docs.ru/Region/Search?q=" + str + "&CountryID=1");
     return fetch("https://" + DomenUrl + ".advance-docs.ru/Region/Search?q=" + str + "&CountryID=1", {
       method: 'GET',
       credentials: 'include'
@@ -446,6 +521,7 @@ function PostForm(data) {
     if (str == "") {
       return Promise.resolve("")
     }
+    console.log("https://" + DomenUrl + ".advance-docs.ru/Contractor/CountriesList?location=Foreign");
     return fetch("https://" + DomenUrl + ".advance-docs.ru/Contractor/CountriesList?location=Foreign", {
       method: 'GET',
       credentials: 'include'
@@ -487,6 +563,7 @@ function PostForm(data) {
 
     return Promise.resolve().then(() => {
       var d = new FormData();
+      console.log("!!!!!!!!!!!!!!!!!!!!!", obj);
       switch (obj._location) {
         case "Foreign":
           d.append("Active", true);
@@ -561,6 +638,7 @@ function PostForm(data) {
 
 
   function GetContractor(obj) {
+    console.log("GetContractor!!!!!!!!!!!!", obj);
     var url = ""
     var str = ""
     var obj = obj

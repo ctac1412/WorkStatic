@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Импорт экселя в Адванс",
-  "version": "0.3",
+  "version": "0.5",
 
   "description": "Плагин позволяет импортировать данные из шаблона Excel в форму Advance",
 
@@ -12,12 +12,9 @@
     }
   },
 
-  "icons": {
-    "48": "icons/48.png"
-  },
 
   "sidebar_action": {
-  "default_title": "My sidebar",
+  "default_title": "Импорт",
   "default_panel": "sidebar/sidebar.html",
   "default_icon": "sidebar/sidebar_icon.png",
   "browser_style": true
@@ -38,20 +35,26 @@
       "downloads",
       "cookies"
   ],
-  "browser_action": {
-      "browser_style": false,
-      "default_icon": "icons/32.png",
-      "default_title": "Эксперта плагин"
-  },
-
   "background": {
-    "scripts": ["background.js","./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js"]
+    "scripts": ["background.js","./content/Agency.js","sidebar/lib/fltxt.js"]
   },
 
   "content_scripts": [
     {
       "matches": ["*://*.advance-docs.ru/Claim/Edit/*"],
-      "js": ["./content/Agency.js","./content/Agency2.js","sidebar/lib/fltxt.js","jQuery.js"]
+      "js": ["./content/Agency.js","sidebar/lib/fltxt.js","jQuery.js"]
+    },
+    {
+      "matches": ["*://getnumber.me/Protocol*"],
+      "js": ["./content/getnumber.js","jQuery.js"]
+    },
+    {
+      "matches": ["*://stage-2-docs.advance-docs.ru/Claim"],
+      "js": ["./content/datapicker.js","jQuery.js"]
+    },
+    {
+      "matches": ["*://*.advance-docs.ru/*"],
+      "js": ["./content/Assistent.js"]
     }
   ]
 }
