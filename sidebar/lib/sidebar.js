@@ -1,192 +1,168 @@
-(function(obj) {
-
-  var requestFileSystem = obj.webkitRequestFileSystem || obj.mozRequestFileSystem || obj.requestFileSystem;
-
-  function onerror(message) {
-    console.log(message);
-    alert(message);
+var $ = require('jquery');
+class Organ {
+  constructor(base, code, key, info, data = {}) {
+    this.base = base;
+    this.code = code;
+    this.key = key;
+    this.info = info;
   }
 
-  function createTempFile(callback) {
-    var tmpFilename = "tmp.dat";
-    requestFileSystem(TEMPORARY, 4 * 1024 * 1024 * 1024, function(filesystem) {
-      function create() {
-        filesystem.root.getFile(tmpFilename, {
-          create: true
-        }, function(zipFile) {
-          callback(zipFile);
-        });
-      }
 
-      filesystem.root.getFile(tmpFilename, null, function(entry) {
-        entry.remove(create, create);
-      }, create);
-    });
-  }
+}
+refresh()
 
-  var model = (function() {
-    var URL = obj.webkitURL || obj.mozURL || obj.URL;
-
-    return {
-      getEntries: function(file, onend) {
-        var tmp = new zip.BlobReader(file);
-        zip.createReader(tmp, function(zipReader) {
-          zipReader.getEntries(onend);
-        }, function(error) {
-          onerror(error)
-        });
-
-      },
-      getEntryFile: function(entry, creationMethod, onend, onprogress) {
-        var writer, zipFileEntry;
-
-        function getData() {
-          entry.getData(writer, function(blob) {
-            var blobURL = creationMethod == "Blob" ? URL.createObjectURL(blob) : zipFileEntry.toURL();
-
-            onend(blobURL);
-          }, onprogress);
-        }
-
-        if (creationMethod == "Blob") {
-          writer = new zip.BlobWriter();
-          getData();
-        } else {
-          createTempFile(function(fileEntry) {
-            zipFileEntry = fileEntry;
-            writer = new zip.FileWriter(zipFileEntry);
-            getData();
-          });
-        }
-      }
-    };
-  })();
-
-  (function() {
-    var fileInput = document.getElementById("file-input");
-    var btnStart = document.querySelector('#start_load');
-
-    // var unzipProgress = document.createElement("progress");
-    // var fileList = document.getElementById("file-list");
-    // var creationMethodInput = document.getElementById("creation-method-input");
+function refresh() {
+document.querySelector('#time').innerHTML= "...";
 
 
-    //NOTE: LISTINER CHANG
-    document.querySelector('#LoadTemp').addEventListener("click", (e) => {
-      return browser.tabs.query({
-        currentWindow: true,
-        active: true
-      }).then((tabs) => {
-        return browser.tabs.sendMessage(
-          tabs[0].id,
-          Object.assign({}, {
-            action: "LoadTemp"
-          })
-        )
-      }).then(allmsg => {
-        if (allmsg) {
-          AddMessage(allmsg)
-        }
-      }).catch((err) => {
-        console.log(err.message);
+  let _state = {}
+  let Organs = []
+  let allPromise = []
+  browser.storage.sync.get('organs').then((res) => {
+    if (res.organs) {
+      res.organs.forEach(item => {
+        Organs.push(new Organ(item.base, item.code, item.key, item.info))
       })
-    })
-
-    document.querySelector('#testget').addEventListener("click", (e) => {
-      return browser.tabs.query({
-        currentWindow: true,
-        active: true
-      }).then((tabs) => {
-        return browser.tabs.sendMessage(
-          tabs[0].id,
-          Object.assign({}, {
-            action: "testget"
-          })
-        )
-      })
-    })
-
-
-    document.querySelector('#FocusUp').addEventListener("click", (e) => {
-      return browser.tabs.query({
-        currentWindow: true,
-        active: true
-      }).then((tabs) => {
-        return browser.tabs.sendMessage(
-          tabs[0].id,
-          Object.assign({}, {
-            action: "FocusUp"
-          })
-        )
-      })
-    })
-
-    document.querySelector('#Save').addEventListener("click", (e) => {
-      return browser.tabs.query({
-        currentWindow: true,
-        active: true
-      }).then((tabs) => {
-        return browser.tabs.sendMessage(
-          tabs[0].id,
-          Object.assign({}, {
-            action: "Save"
-          })
-        )
-      })
-    })
-
-    fileInput.addEventListener('change', function() {
-      getFileParam()
-      document.querySelector('#message-container').innerHTML = ""
-    })
-
-    btnStart.addEventListener('click', function() {
-      var arrpromise = []
-      if (fileInput.files.length == 0) {
-        alert("Не выбран ни один файл")
-        return
-      }
-      model.getEntries(fileInput.files[0], function(entries) {
-        entries.forEach(function(entry) {
-
-          if (entry.filename == "xl/worksheets/sheet1.xml" || entry.filename == "xl/sharedStrings.xml" || entry.filename == "xl/workbook.xml") {
-            arrpromise.push(readfile(entry))
-          }
-        });
-        Promise.all(arrpromise).then(() => {
-          starting()
-        });
-      });
-
-    }, false);
-
-    function readfile(entry) {
-      return new Promise(function(resolve, reject) {
-        var writer = new zip.BlobWriter();
-        entry.getData(writer, function(blob) {
-
-          var reader = new FileReader();
-          reader.onload = function(event) {
-            switch (entry.filename) {
-              case "xl/worksheets/sheet1.xml":
-                Sheet1.text = event.target.result
-                break;
-              case "xl/sharedStrings.xml":
-                sharestring.text = event.target.result
-                break;
-              case "xl/workbook.xml":
-                workbook.text = event.target.result
-                break;
-            }
-            resolve()
-          }
-          reader.readAsText(blob)
-        })
-      });
-
-
     }
+  }).then(()=>{
 
-  })();
+    Organs.forEach((item, index, arr) => {
+      allPromise.push(Refresh(item, index, arr))
+    })
+    Promise.all(allPromise).then((obj) => {
+      let body =
+        `<table class="table OwnSize">
+        <thead>
+        <tr>
+              <th></th>
+                    <th>ДС</th>
+                    <th>СС</th>
+                    <th>Г.р.</th>
+                    <th>&Sigma;</th>
+                    <th></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="NameRow" >
+                  <td  colspan="5" align="center">Репликации</td>
+                  <td ></td>
+                  </tr>
+                    ${AddRowRep(Organs)}
+              <tr>
+              <td colspan="5" align="center">Заявления</td>
+              <td ></td>
+              </tr>
 
-})(this);
+            ${AddRowZaj(Organs)}
+            </tbody>
+            </table>        `
+      document.querySelector('#Info').innerHTML= body
+      document.querySelector('#time').innerHTML=  new Date();
+      document.querySelector('#Refresh').addEventListener("click", function() {
+         refresh()
+      })
+    });
+  });
+
+
+
+}
+
+function AddRowCount(item) {
+  let body = `
+  <tr>
+  <td colspan="6" align="center" >${str}</td>
+  </tr>`
+  return body
+}
+
+function AddRowZaj(str) {
+  let body = ``
+  let summDS = 0
+  let summSS = 0
+  let summGhostR = 0
+  str.forEach((item, index, arr) => {
+    body += `<tr>
+             <td class = "test">${item.info}</td>
+             <td class = "test">${item.DTREA.statements}</td>
+             <td class = "test" >${item.STREA.statements}</td>
+             <td class = "test" >${item.DGSTR.statements}</td>
+             <td class = "test" >${item.DTREA.statements + item.STREA.statements +item.DGSTR.statements}</td>
+             <td class = "test" ></td>
+            </tr>`
+    summDS += parseInt(item.DTREA.statements)
+    summSS += parseInt(item.STREA.statements)
+    summGhostR += parseInt(item.DGSTR.statements)
+  })
+  body += `<tr>
+           <td>&Sigma;</td>
+           <td>${summDS}</td>
+           <td>${summSS}</td>
+           <td>${summGhostR}</td>
+           <td>${summDS + summSS +summGhostR}</td>
+           <td></td>
+  </tr>`
+  return body
+}
+
+function AddRowRep(str) {
+  let body = ``
+  let summDS = 0
+  let summSS = 0
+  let summGhostR = 0
+  str.forEach((item, index, arr) => {
+    body += `<tr>
+             <td>${item.info}</td>
+             <td>${item.DTREA.replication}</td>
+             <td>${item.STREA.replication}</td>
+             <td>${item.DGSTR.replication}</td>
+             <td>${item.DTREA.replication + item.STREA.replication +item.DGSTR.replication}</td>
+             <td class = "test" ></td>
+            </tr>`
+    summDS += parseInt(item.DTREA.replication)
+    summSS += parseInt(item.STREA.replication)
+    summGhostR += parseInt(item.DGSTR.replication)
+  })
+  body += `<tr>
+           <td>&Sigma;</td>
+           <td>${summDS}</td>
+           <td>${summSS}</td>
+           <td>${summGhostR}</td>
+           <td>${summDS + summSS +summGhostR}</td>
+           <td></td>
+  </tr>`
+
+  return body
+}
+
+function Refresh(item, index, arr) {
+  var url = 'https://' + item.base + '.advance-docs.ru/api/v1//rsa_status/index?' +
+    'agency_code=' + encodeURIComponent(item.code) +
+    '&agency_keyword=' + encodeURIComponent(item.key)
+  return fetch(url, {
+    method: 'GET',
+    credentials: 'include'
+  }).then((response) => {
+    return response.json().then(obj => {
+      if (obj.status == "success") {
+        arr[index].DTREA = obj.data.DTREA
+        arr[index].DGSTR = obj.data.DGSTR
+        arr[index].DGSTR.statements = 0
+        arr[index].STREA = obj.data.STREA
+      } else {
+        arr[index].DTREA = {
+          statements: "Ошибка соединения",
+          replication: "Ошибка соединения"
+        }
+        arr[index].STREA = {
+          statements: "Ошибка соединения",
+          replication: "Ошибка соединения"
+        }
+        arr[index].DGSTR = {
+          statements: "Ошибка соединения",
+          replication: "Ошибка соединения"
+        }
+      }
+    })
+  });
+}

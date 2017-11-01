@@ -3,70 +3,24 @@
 
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/bootstrap.css">
   <link rel="stylesheet" href="./css/input.css">
-  <link rel="stylesheet" href="./css/loading-bar.css">
-  <script src="./scripts/loading-bar.js"></script>
-  <script src="./scripts/loading-bar.min.js"></script>
-  <script src="./jquery.min.js"></script>
-  <script src="./bootstrap.min.js"></script>
-  <script src="./scripts/bootactions.js"></script>
-  <script src="./scripts/loading-bar.js"></script>
-  <script src="./scripts/loading-bar.min.js"></script>
 
 </head>
 
 <body>
-  <!-- <div data-preset="stripe" class="ldBar label-center" data-value="100"></div> -->
-  <div class="btn-group-vertical" role="group" aria-label="...">
-    <button id="FocusUp" type="button" class="btn btn-info"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i> Наверх</button>
-    <button id="Save" type="button" disabled="disabled" class="btn btn-success"><i class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></i> Сохранить</button>
+  <div id="Info">
 
-    <div class="ldBar"></div>
-    <input id="file-input" accept=".xlsx" name="file" type="file"></input> <label for="file-input" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i>&nbsp; Выберете файл</label>
-    <div id="file-name1">Имя:</div>
-    <div id="file-size1" style="margin-bottom:5px">Размер:</div>
-    <button type="button" id="start_load" class="btn btn-success"><i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i> Загрузить</button>
   </div>
-
-
   <div>
-
-
-    <button type="button" id="testget" class="btn btn-success"><i class="glyphicon glyphicon-cloud-download" aria-hidden="true"></i> Load Getnumber</button>
-
-    <button type="button" id="LoadTemp" class="btn btn-success"><i class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></i> Upload Advance</button>
-  </div>
-  <div id="message-container" class="margin-container">
+    <button id="Refresh" type="button " class="btn btn-success ">Обновить</button>
+    <p id="time">
+    </p>
   </div>
 
 
-  <div hidden="" id="container">
-    <ol id="demo-container">
-      <li>
-        <label>
-  					<span class="form-label">choose temporary storage</span>
-  					<select id="creation-method-input">
-  						<option value="Blob">RAM</option>
-
-  					</select>
-  				</label>
-      </li>
-      <li>
-        <span class="form-label">download zip content</span>
-        <ul id="file-list">
-        </ul>
-      </li>
-    </ol>
-
-  </div>
-
-  <!-- <script type="text/javascript" src="./lib/actions.js"></script> -->
-  <script src="./lib/sidebar.js"></script>
-  <script type="text/javascript" src="./lib/zip.js"></script>
-  <script type="text/javascript" src="./lib/zip-ext.js"></script>
-  <script type="text/javascript" src="./lib/fltxt.js"></script>
-
+  <script src="bundle.js " charset="utf-8 "></script>
+  <script src="./bootstrap.min.js "></script>
 </body>
 
 </html>

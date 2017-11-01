@@ -1,0 +1,27 @@
+{
+  "name": "reportworks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctac1412/WorkStatic.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ctac1412/WorkStatic/issues"
+  },
+  "homepage": "https://github.com/ctac1412/WorkStatic#readme",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "webpack": "^3.8.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "style-loader": "^0.19.0"
+  }
+}
