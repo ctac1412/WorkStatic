@@ -87,7 +87,9 @@ document.querySelector('#time').innerHTML= "...";
   let _state = {}
   let Organs = []
   let allPromise = []
-  browser.storage.sync.get('organs').then((res) => {
+  browser.runtime.getBackgroundPage().then((page)=>{
+  return page.GetStorage({organs: Organs})
+  }).then((res) => {
     if (res.organs) {
       res.organs.forEach(item => {
         Organs.push(new Organ(item.base, item.code, item.key, item.info))

@@ -24,14 +24,28 @@ function saveOptions(e) {
 
 })
 
-browser.storage.sync.set({
-  organs: Organs
-});
+// browser.runtime.sendMessage({type:"set",data:{organs: Organs}});
 
+// browser.runtime.onMessage.addListener((request,sender,sendResponse)=>{
+// console.log(request);
+// // browser.storage.sync.set({
+// //   organs: Organs
+// // });
+// })
+
+// browser.storage.sync.set({
+//   organs: Organs
+// });
+return browser.runtime.getBackgroundPage().then((page)=>{
+page.SetStorage({organs: Organs})
+});
 }
 
 function restoreOptions() {
-  browser.storage.sync.get('organs').then((res) => {
+
+return browser.runtime.getBackgroundPage().then((page)=>{
+    page.GetStorage("organs").then((res)=>{
+
     if (res.organs) {
       res.organs.forEach(item => {
         document.querySelector('form').appendChild(OrganHtml({
@@ -42,7 +56,16 @@ function restoreOptions() {
         }));
       })
     }
-  });
+
+    });
+});
+
+  //  browser.runtime.sendMessage({type:"get",data:'organs'}).then((res)=>{
+  // console.log(res);
+  // });
+  // // browser.storage.sync.get('organs').then((res) => {
+
+  // });
 }
 
 function OrganHtml({base = "", code = "", key = "", info = ""}) {
@@ -55,7 +78,8 @@ function OrganHtml({base = "", code = "", key = "", info = ""}) {
                   <div><label style="width:70px;display:inline-block;text-align:center;">База: </label><input style="margin-right:3px;" type="text" id = "base" value="${base}"></input></div>
                   <div><label style="width:70px;display:inline-block;text-align:center;">Код Органа: </label><input style="margin-right:3px;" type="text" id = "code" value="${code}" ></input></div>
                   <div><label style="width:70px;display:inline-block;text-align:center;">Ключ Апи: </label><input style="margin-right:3px;" type="text" id = "key" value="${key}" ></input></div>
-                  <div><label style="width:70px;display:inline-block;text-align:center;">Инфо: </label><input style="margin-right:3px;" type="text" id = "info" value="${info}" ></input></div>`
+                  <div><label style="width:70px;display:inline-block;text-align:center;">Инфо: </label><input style="margin-right:3px;" type="text" id = "info" value="${info}" ></input></div>
+              `
   return i
 }
 
@@ -63,6 +87,6 @@ function AddOrgan() {
   document.querySelector('form').appendChild(OrganHtml({}));
 }
 
-document.addEventListener('DOMContentLoaded', restoreOptions);
+ document.addEventListener('DOMContentLoaded', restoreOptions);
 document.querySelector("form").addEventListener("submit", saveOptions);
 document.querySelector("#AddOrgan").addEventListener("click", AddOrgan);

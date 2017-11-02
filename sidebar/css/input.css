@@ -9,16 +9,15 @@ border-right:#747474 3px solid double;
 }
 
 body .table {
-	table-layout: fixed;
-
+	table-layout: auto;
+	margin-left: 5px;
+	margin-right:  5px;
 }
 body .table td {
 	padding:3px 2px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	border-right:1px solid black;
-
-
 }
 body .table td:first-child {
 	min-width:50px;
@@ -27,10 +26,12 @@ body .table td:first-child {
 }
 body .table td:last-child {
 	border-left: 1px solid black;
+	border-right: none;
 	width: 3%;
 }
 body .table th:last-child {
 	border-left: 1px solid black;
+	border-right: none;
 	width: 3%;
 	border-bottom: 0px;
 	border-top:0px;
@@ -42,14 +43,12 @@ body .table tr:last-child td {
 
 body .table tbody tr:last-child td:last-child  {
 	border-bottom: none;
-	/*border-right:none;*/
 }
 
 body .table th {
 	overflow: hidden;
 	text-overflow:ellipsis;
-	border-bottom: 1px solid black;
-	border-right:1px solid black;
-	border-top:1px solid black;
+	border: 1px solid black;
+
 	padding: 3px
 }
